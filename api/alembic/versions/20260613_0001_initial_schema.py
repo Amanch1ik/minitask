@@ -33,10 +33,17 @@ def upgrade() -> None:
     )
     op.create_index("ix_users_email", "users", ["email"])
 
-    task_status = sa.Enum("todo", "in_progress", "done", name="task_status")
-    task_priority = sa.Enum("low", "medium", "high", name="task_priority")
-    task_status.create(op.get_bind(), checkfirst=True)
-    task_priority.create(op.get_bind(), checkfirst=True)
+    # Create enum types explicitly. The column-level Enum references below set
+    # create_type=False so SQLAlchemy doesn't try to issue CREATE TYPE again as
+    # part of create_table.
+    task_status = postgresql.ENUM(
+        "todo", "in_progress", "done", name="task_status", create_type=False
+    )
+    task_priority = postgresql.ENUM(
+        "low", "medium", "high", name="task_priority", create_type=False
+    )
+    op.execute("CREATE TYPE task_status AS ENUM ('todo', 'in_progress', 'done')")
+    op.execute("CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high')")
 
     op.create_table(
         "tasks",
@@ -73,7 +80,7 @@ def downgrade() -> None:
     op.drop_index("ix_tasks_status", table_name="tasks")
     op.drop_index("ix_tasks_owner_id", table_name="tasks")
     op.drop_table("tasks")
-    sa.Enum(name="task_priority").drop(op.get_bind(), checkfirst=True)
-    sa.Enum(name="task_status").drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS task_priority")
+    op.execute("DROP TYPE IF EXISTS task_status")
     op.drop_index("ix_users_email", table_name="users")
     op.drop_table("users")
