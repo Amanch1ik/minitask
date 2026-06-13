@@ -33,12 +33,9 @@ export default function TaskDialog({ open, initial, onClose, onSubmit }) {
     );
   }, [open, initial]);
 
-  // Close on Esc.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => {
-      if (e.key === "Escape") onClose();
-    };
+    const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
@@ -76,38 +73,42 @@ export default function TaskDialog({ open, initial, onClose, onSubmit }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/30 backdrop-blur-sm sm:items-center"
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/30 px-4 sm:items-center"
           onClick={onClose}
         >
           <motion.div
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 30, opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ y: 16, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-xl rounded-t-3xl bg-cream p-6 shadow-card sm:rounded-card sm:p-8"
+            className="w-full max-w-md rounded-t-xl border border-zinc-200 bg-white p-5 sm:rounded-xl sm:p-6"
             role="dialog"
             aria-modal="true"
           >
-            <header className="mb-6 flex items-baseline justify-between">
+            <header className="mb-4 flex items-start justify-between">
               <div>
-                <p className="eyebrow">{isEdit ? "Edit" : "Create"}</p>
-                <h2 className="mt-1 font-display text-2xl leading-tight">
-                  {isEdit ? "Update this task" : "A new task"}
+                <h2 className="text-base font-semibold text-zinc-900">
+                  {isEdit ? "Edit task" : "New task"}
                 </h2>
+                <p className="mt-0.5 text-sm text-zinc-500">
+                  {isEdit
+                    ? "Update the details and save."
+                    : "A short title is enough to start."}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-charcoal-mute hover:text-charcoal"
+                className="grid h-7 w-7 place-items-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900"
                 aria-label="Close"
               >
                 ✕
               </button>
             </header>
 
-            <form onSubmit={submit} className="space-y-6">
+            <form onSubmit={submit} className="space-y-4">
               <Input
                 label="Title"
                 value={form.title}
@@ -115,35 +116,42 @@ export default function TaskDialog({ open, initial, onClose, onSubmit }) {
                 required
                 maxLength={200}
                 autoFocus
+                placeholder="Write the docs"
               />
 
               <div>
-                <label className="mb-2 block text-xs text-charcoal-mute" htmlFor="task-desc">
+                <label
+                  htmlFor="task-desc"
+                  className="mb-1.5 block text-sm font-medium text-zinc-800"
+                >
                   Description
                 </label>
                 <textarea
                   id="task-desc"
-                  rows={4}
+                  rows={3}
                   value={form.description}
                   onChange={set("description")}
-                  className="block w-full resize-none rounded-card border border-cream-deeper bg-cream-dark/30 p-3 text-[15px] text-charcoal outline-none focus:border-charcoal/40"
-                  placeholder="Anything to remember about this task…"
+                  className="block w-full resize-none rounded-md border border-zinc-200 bg-white p-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus-visible:border-zinc-400 focus-visible:ring-2 focus-visible:ring-zinc-900/15"
+                  placeholder="Optional"
                 />
               </div>
 
-              <div className="grid gap-6 sm:grid-cols-2">
-                <Pills
-                  legend="Priority"
+              <div className="grid grid-cols-2 gap-4">
+                <Segmented
+                  label="Priority"
                   value={form.priority}
                   options={[
-                    { v: "low", label: "low" },
-                    { v: "medium", label: "medium" },
-                    { v: "high", label: "high" },
+                    { v: "low", label: "Low" },
+                    { v: "medium", label: "Med" },
+                    { v: "high", label: "High" },
                   ]}
                   onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
                 />
                 <div>
-                  <label className="mb-2 block text-xs text-charcoal-mute" htmlFor="task-deadline">
+                  <label
+                    htmlFor="task-deadline"
+                    className="mb-1.5 block text-sm font-medium text-zinc-800"
+                  >
                     Deadline
                   </label>
                   <input
@@ -151,27 +159,31 @@ export default function TaskDialog({ open, initial, onClose, onSubmit }) {
                     type="date"
                     value={form.deadline}
                     onChange={set("deadline")}
-                    className="block h-11 w-full rounded-card border border-cream-deeper bg-cream-dark/30 px-3 text-[15px] tabular text-charcoal outline-none focus:border-charcoal/40"
+                    className="block h-9 w-full rounded-md border border-zinc-200 bg-white px-2.5 text-sm tabular font-mono text-zinc-900 focus:outline-none focus-visible:border-zinc-400 focus-visible:ring-2 focus-visible:ring-zinc-900/15"
                   />
                 </div>
               </div>
 
               {isEdit && (
-                <Pills
-                  legend="Status"
+                <Segmented
+                  label="Status"
                   value={form.status}
                   options={[
-                    { v: "todo", label: "todo" },
-                    { v: "in_progress", label: "in progress" },
-                    { v: "done", label: "done" },
+                    { v: "todo", label: "Todo" },
+                    { v: "in_progress", label: "In progress" },
+                    { v: "done", label: "Done" },
                   ]}
                   onChange={(v) => setForm((f) => ({ ...f, status: v }))}
                 />
               )}
 
-              {error && <p className="text-sm text-amber">{error}</p>}
+              {error && (
+                <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
 
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex items-center justify-end gap-2 pt-1">
                 <Button type="button" variant="ghost" onClick={onClose} disabled={busy}>
                   Cancel
                 </Button>
@@ -187,26 +199,26 @@ export default function TaskDialog({ open, initial, onClose, onSubmit }) {
   );
 }
 
-function Pills({ legend, value, options, onChange }) {
+function Segmented({ label, value, options, onChange }) {
   return (
-    <fieldset>
-      <legend className="mb-2 text-xs text-charcoal-mute">{legend}</legend>
-      <div className="inline-flex rounded-full bg-cream-dark/60 p-1">
+    <div>
+      <label className="mb-1.5 block text-sm font-medium text-zinc-800">{label}</label>
+      <div className="inline-flex rounded-md border border-zinc-200 bg-zinc-50 p-0.5">
         {options.map((opt) => (
           <button
             key={opt.v}
             type="button"
             onClick={() => onChange(opt.v)}
-            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+            className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
               value === opt.v
-                ? "bg-cream text-charcoal shadow-soft"
-                : "text-charcoal-mute hover:text-charcoal"
+                ? "bg-white text-zinc-900 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-900"
             }`}
           >
             {opt.label}
           </button>
         ))}
       </div>
-    </fieldset>
+    </div>
   );
 }

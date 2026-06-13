@@ -2,10 +2,9 @@ import { useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { useAuth } from "../stores/auth.js";
 import useTasks from "../hooks/useTasks.js";
+import Button from "../components/ui/Button.jsx";
 import StatusColumn from "../components/board/StatusColumn.jsx";
-import StatsPanel from "../components/board/StatsPanel.jsx";
 import TaskDialog from "../components/board/TaskDialog.jsx";
-import { todayLabel } from "../lib/format.js";
 
 const STATUSES = ["todo", "in_progress", "done"];
 
@@ -20,12 +19,12 @@ export default function BoardView() {
     return acc;
   }, [tasks]);
 
+  const active = tasks.filter((t) => t.status !== "done").length;
+  const done = tasks.length - active;
+
   async function handleSubmit(payload) {
-    if (editing && editing.id) {
-      await update(editing.id, payload);
-    } else {
-      await create(payload);
-    }
+    if (editing && editing.id) await update(editing.id, payload);
+    else await create(payload);
     setEditing(null);
   }
 
@@ -39,56 +38,53 @@ export default function BoardView() {
   }
 
   return (
-    <main className="relative min-h-screen">
-      <div className="glow-corner pointer-events-none absolute inset-0" />
+    <div className="min-h-screen bg-white">
+      <Header email={user?.email} onLogout={logout} />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-10 lg:px-10 lg:py-14">
-        <Header email={user?.email} onLogout={logout} />
-
-        <motion.section
-          initial={{ opacity: 0, y: 8 }}
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 mb-10"
+          transition={{ duration: 0.25 }}
+          className="mb-6 flex flex-wrap items-end justify-between gap-3"
         >
-          <h1 className="font-display text-[clamp(2rem,4vw,3rem)] leading-tight">
-            {todayLabel()}
-          </h1>
-          <p className="text-charcoal-mute text-sm tabular">
-            {tasks.length} {tasks.length === 1 ? "task" : "tasks"} on the board
-          </p>
-        </motion.section>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              Your tasks
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500 tabular">
+              {active} active · {done} done
+            </p>
+          </div>
+          <Button onClick={() => setEditing({})}>
+            <span aria-hidden>+</span>
+            New task
+          </Button>
+        </motion.div>
 
         {error && (
-          <p className="mb-6 rounded-card bg-amber/10 px-4 py-3 text-sm text-amber">
+          <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
-          <StatsPanel tasks={tasks} onCreate={() => setEditing({})} />
-
-          {/* Single column on mobile (each status reads vertically), three
-              columns from sm up. Min-w-0 on cells keeps long titles from
-              forcing horizontal scroll. */}
-          <div className="grid gap-6 sm:grid-cols-3 sm:gap-8">
-            {STATUSES.map((status) => (
-              <StatusColumn
-                key={status}
-                status={status}
-                tasks={grouped[status]}
-                onEdit={setEditing}
-                onMove={handleMove}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {STATUSES.map((status) => (
+            <StatusColumn
+              key={status}
+              status={status}
+              tasks={grouped[status]}
+              onEdit={setEditing}
+              onMove={handleMove}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
 
         {loading && tasks.length === 0 && (
-          <p className="mt-12 text-center text-xs text-charcoal-mute">loading…</p>
+          <p className="mt-8 text-center text-xs text-zinc-400">Loading…</p>
         )}
-      </div>
+      </main>
 
       <TaskDialog
         open={editing !== null}
@@ -96,23 +92,32 @@ export default function BoardView() {
         onClose={() => setEditing(null)}
         onSubmit={handleSubmit}
       />
-    </main>
+    </div>
   );
 }
 
 function Header({ email, onLogout }) {
   return (
-    <header className="flex items-center justify-between">
-      <p className="eyebrow">Board</p>
-      <div className="flex items-center gap-4">
-        <span className="hidden text-sm text-charcoal-mute sm:inline">{email}</span>
-        <button
-          type="button"
-          onClick={onLogout}
-          className="text-sm text-charcoal-mute underline-offset-4 hover:text-charcoal hover:underline"
-        >
-          sign out
-        </button>
+    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/85 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-2">
+          <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-900 text-xs font-bold text-white">
+            m
+          </span>
+          <span className="text-sm font-semibold tracking-tight text-zinc-900">
+            minitask
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="hidden text-sm text-zinc-500 sm:inline">{email}</span>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="text-sm text-zinc-500 hover:text-zinc-900"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </header>
   );

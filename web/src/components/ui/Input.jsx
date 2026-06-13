@@ -1,13 +1,5 @@
 import { forwardRef, useId } from "react";
 
-/**
- * Floating-label input. The label sits inside the field as a placeholder, then
- * lifts and shrinks once the field has content or focus — done with a peer-
- * placeholder-shown trick, so it works without any React state and stays
- * keyboard-only friendly.
- *
- * Uses an underline border, not a box, to fit the editorial tone.
- */
 const Input = forwardRef(function Input(
   { label, hint, error, className = "", ...rest },
   ref,
@@ -16,26 +8,24 @@ const Input = forwardRef(function Input(
   const id = rest.id ?? reactId;
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={className}>
+      {label && (
+        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-zinc-800">
+          {label}
+        </label>
+      )}
       <input
         ref={ref}
         id={id}
-        // Real placeholder is a single space so peer-placeholder-shown fires
-        // only when the field is empty.
-        placeholder=" "
-        className={`peer block w-full bg-transparent border-b ${
-          error ? "border-amber" : "border-charcoal/20 focus:border-charcoal"
-        } pt-5 pb-2 outline-none text-charcoal text-[15px] transition-colors`}
+        className={`block h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 transition-shadow ${
+          error
+            ? "border-red-300 focus-visible:ring-red-200"
+            : "border-zinc-200 focus-visible:ring-zinc-900/15 focus-visible:border-zinc-400"
+        }`}
         {...rest}
       />
-      <label
-        htmlFor={id}
-        className="pointer-events-none absolute left-0 top-5 text-charcoal-mute text-[15px] transition-all duration-200 ease-soft peer-focus:top-0 peer-focus:text-xs peer-focus:text-charcoal-soft peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs"
-      >
-        {label}
-      </label>
       {(hint || error) && (
-        <p className={`mt-2 text-xs ${error ? "text-amber" : "text-charcoal-mute"}`}>
+        <p className={`mt-1.5 text-xs ${error ? "text-red-600" : "text-zinc-500"}`}>
           {error ?? hint}
         </p>
       )}

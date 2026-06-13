@@ -5,14 +5,13 @@ import Input from "../components/ui/Input.jsx";
 import { useAuth } from "../stores/auth.js";
 
 export default function AuthView() {
-  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const { login, register } = useAuth();
-
   const isLogin = mode === "login";
 
   async function submit(e) {
@@ -30,102 +29,76 @@ export default function AuthView() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <div className="glow-corner pointer-events-none absolute inset-0" />
-
-      <div className="relative z-10 mx-auto grid min-h-screen max-w-6xl items-center gap-16 px-6 py-16 lg:grid-cols-[5fr_7fr] lg:py-24">
-        {/* Left — typography panel */}
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-6"
-        >
-          <p className="eyebrow">
-            {isLogin ? "Enter · session" : "Create · account"}
-          </p>
-          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-tight">
-            {isLogin ? (
-              <>
-                Welcome <em className="not-italic text-teal">back</em>
-                <br />
-                to your tasks.
-              </>
-            ) : (
-              <>
-                A quiet place
-                <br />
-                for <em className="not-italic text-teal">your</em> tasks.
-              </>
-            )}
-          </h1>
-          <p className="max-w-md text-charcoal-soft">
-            One board, three lanes, no clutter. Drag work between todo, in
-            progress and done. Your session stays for thirty days; sign out
-            ends it sooner.
-          </p>
-        </motion.section>
-
-        {/* Right — form panel */}
-        <motion.section
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
-        >
-          <div className="relative rounded-card bg-cream-dark/40 p-8 shadow-card backdrop-blur-sm md:p-10">
-            <form onSubmit={submit} className="space-y-6">
-              <Input
-                label="Email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoFocus
-              />
-              <Input
-                label="Password"
-                type="password"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                hint={isLogin ? undefined : "at least 8 characters"}
-              />
-
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-sm text-amber"
-                >
-                  {error}
-                </motion.p>
-              )}
-
-              <div className="flex items-center justify-between gap-4 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode(isLogin ? "register" : "login");
-                    setError(null);
-                  }}
-                  className="text-sm text-charcoal-mute underline-offset-4 transition-colors hover:text-charcoal hover:underline"
-                >
-                  {isLogin ? "Create account" : "I have an account"}
-                </button>
-                <Button type="submit" size="lg" disabled={busy}>
-                  {busy ? "…" : isLogin ? "Enter" : "Create"}
-                  <span aria-hidden>→</span>
-                </Button>
-              </div>
-            </form>
+    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-sm"
+      >
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-3 grid h-9 w-9 place-items-center rounded-lg bg-zinc-900">
+            <span className="text-sm font-bold text-white">m</span>
           </div>
-        </motion.section>
-      </div>
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
+            {isLogin ? "Sign in to minitask" : "Create an account"}
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {isLogin
+              ? "Enter your credentials to continue."
+              : "Use your email and a password of at least 8 characters."}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-zinc-200 bg-white p-6">
+          <form onSubmit={submit} className="space-y-4">
+            <Input
+              label="Email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+              placeholder="you@example.com"
+            />
+            <Input
+              label="Password"
+              type="password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+
+            {error && (
+              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" size="lg" disabled={busy} className="w-full">
+              {busy ? "…" : isLogin ? "Sign in" : "Create account"}
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-4 text-center text-sm text-zinc-500">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setMode(isLogin ? "register" : "login");
+              setError(null);
+            }}
+            className="font-medium text-zinc-900 underline-offset-4 hover:underline"
+          >
+            {isLogin ? "Create one" : "Sign in"}
+          </button>
+        </p>
+      </motion.div>
     </main>
   );
 }

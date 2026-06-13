@@ -1,20 +1,18 @@
-import { motion } from "motion/react";
-
 const variants = {
   primary:
-    "bg-charcoal text-cream hover:bg-charcoal-soft disabled:bg-charcoal-mute disabled:cursor-not-allowed",
+    "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-700 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed",
+  secondary:
+    "bg-white text-zinc-900 border border-zinc-200 hover:bg-zinc-50 active:bg-zinc-100 disabled:opacity-50",
   ghost:
-    "bg-transparent text-charcoal hover:bg-charcoal/5 border border-transparent disabled:opacity-40",
-  outline:
-    "bg-transparent text-charcoal hover:bg-cream-dark border border-charcoal/15 disabled:opacity-40",
+    "bg-transparent text-zinc-700 hover:bg-zinc-100 active:bg-zinc-200 disabled:opacity-50",
   danger:
-    "bg-transparent text-charcoal-mute hover:text-amber border border-transparent",
+    "bg-transparent text-zinc-500 hover:text-red-600 hover:bg-red-50 active:bg-red-100",
 };
 
 const sizes = {
-  sm: "h-8 px-3 text-sm",
-  md: "h-11 px-5 text-[15px]",
-  lg: "h-12 px-6 text-base",
+  sm: "h-8 px-3 text-sm rounded-md",
+  md: "h-9 px-3.5 text-sm rounded-md",
+  lg: "h-10 px-4 text-sm rounded-md",
 };
 
 export default function Button({
@@ -25,13 +23,11 @@ export default function Button({
   ...rest
 }) {
   return (
-    <motion.button
-      whileTap={{ scale: 0.97 }}
-      transition={{ duration: 0.12, ease: [0.22, 1, 0.36, 1] }}
-      className={`inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-tight transition-colors ${variants[variant]} ${sizes[size]} ${className}`}
+    <button
+      className={`inline-flex items-center justify-center gap-1.5 font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/20 focus-visible:ring-offset-2 ${variants[variant]} ${sizes[size]} ${className}`}
       {...rest}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
