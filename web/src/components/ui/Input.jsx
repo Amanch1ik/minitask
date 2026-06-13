@@ -17,15 +17,15 @@ const Input = forwardRef(function Input(
       <input
         ref={ref}
         id={id}
-        className={`block h-9 w-full rounded-md border bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 transition-shadow ${
+        className={`block h-10 w-full rounded-lg border bg-white/80 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 backdrop-blur-sm focus:outline-none transition-all ${
           error
-            ? "border-red-300 focus-visible:ring-red-200"
-            : "border-zinc-200 focus-visible:ring-zinc-900/15 focus-visible:border-zinc-400"
+            ? "border-rose-300 focus-visible:shadow-[0_0_0_3px_rgba(244,63,94,0.18)]"
+            : "border-zinc-200 hover:border-zinc-300 focus-visible:border-accent focus-visible:shadow-ringFocus"
         }`}
         {...rest}
       />
       {(hint || error) && (
-        <p className={`mt-1.5 text-xs ${error ? "text-red-600" : "text-zinc-500"}`}>
+        <p className={`mt-1.5 text-xs ${error ? "text-rose-600" : "text-zinc-500"}`}>
           {error ?? hint}
         </p>
       )}

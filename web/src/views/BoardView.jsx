@@ -3,10 +3,12 @@ import { motion } from "motion/react";
 import { useAuth } from "../stores/auth.js";
 import useTasks from "../hooks/useTasks.js";
 import Button from "../components/ui/Button.jsx";
+import Logo from "../components/ui/Logo.jsx";
 import StatusColumn from "../components/board/StatusColumn.jsx";
 import TaskDialog from "../components/board/TaskDialog.jsx";
 
 const STATUSES = ["todo", "in_progress", "done"];
+const ease = [0.16, 1, 0.3, 1];
 
 export default function BoardView() {
   const { user, logout } = useAuth();
@@ -38,22 +40,24 @@ export default function BoardView() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen">
       <Header email={user?.email} onLogout={logout} />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25 }}
-          className="mb-6 flex flex-wrap items-end justify-between gap-3"
+          transition={{ duration: 0.55, ease }}
+          className="mb-8 flex flex-wrap items-end justify-between gap-3"
         >
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-              Your tasks
+            <h1 className="display text-5xl text-zinc-900 sm:text-6xl">
+              Your <em>tasks</em>
             </h1>
-            <p className="mt-1 text-sm text-zinc-500 tabular">
-              {active} active · {done} done
+            <p className="mt-2 text-sm text-zinc-500 tabular">
+              <span className="font-medium text-zinc-800">{active}</span>{" "}
+              active ·{" "}
+              <span className="font-medium text-zinc-800">{done}</span> done
             </p>
           </div>
           <Button onClick={() => setEditing({})}>
@@ -63,17 +67,18 @@ export default function BoardView() {
         </motion.div>
 
         {error && (
-          <p className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-4 rounded-md border border-rose-200 bg-rose-50/80 px-3 py-2 text-sm text-rose-700 backdrop-blur-sm">
             {error}
           </p>
         )}
 
-        <div className="grid gap-6 sm:grid-cols-3">
-          {STATUSES.map((status) => (
+        <div className="grid gap-6 sm:grid-cols-3 sm:gap-5">
+          {STATUSES.map((status, i) => (
             <StatusColumn
               key={status}
               status={status}
               tasks={grouped[status]}
+              index={i}
               onEdit={setEditing}
               onMove={handleMove}
               onDelete={handleDelete}
@@ -98,16 +103,14 @@ export default function BoardView() {
 
 function Header({ email, onLogout }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/85 backdrop-blur-md">
+    <motion.header
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease }}
+      className="sticky top-0 z-30 border-b border-zinc-200/60 bg-white/60 backdrop-blur-xl"
+    >
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-md bg-zinc-900 text-xs font-bold text-white">
-            m
-          </span>
-          <span className="text-sm font-semibold tracking-tight text-zinc-900">
-            minitask
-          </span>
-        </div>
+        <Logo size={28} withWord />
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-zinc-500 sm:inline">{email}</span>
           <button
@@ -119,6 +122,6 @@ function Header({ email, onLogout }) {
           </button>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
