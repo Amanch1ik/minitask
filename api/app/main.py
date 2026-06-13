@@ -6,6 +6,7 @@ from slowapi.errors import RateLimitExceeded
 from app.config import get_settings
 from app.limiter import limiter
 from app.routers import auth as auth_router
+from app.routers import tasks as tasks_router
 
 settings = get_settings()
 
@@ -45,3 +46,4 @@ async def health() -> dict[str, str]:
 
 
 app.include_router(auth_router.router)
+app.include_router(tasks_router.router)
