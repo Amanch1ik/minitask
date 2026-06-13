@@ -60,13 +60,15 @@ export default function TaskCard({ task, onEdit, onMove, onDelete }) {
         </div>
       </button>
 
-      <div className="mt-3 flex items-center justify-between border-t border-cream-deeper pt-3 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+      {/* Action strip — hover-reveal on desktop, always visible on touch where
+          hover is not a thing. */}
+      <div className="mt-3 flex items-center justify-between border-t border-cream-deeper pt-3 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
         <div className="flex gap-1">
           <button
             type="button"
             disabled={!canBack}
             onClick={() => onMove(task, STATUS_ORDER[idx - 1])}
-            className="h-7 w-7 rounded-chip text-charcoal-mute hover:bg-cream-dark disabled:opacity-30"
+            className="h-9 w-9 sm:h-7 sm:w-7 rounded-chip text-charcoal-mute hover:bg-cream-dark disabled:opacity-30"
             aria-label="Move back"
           >
             ←
@@ -75,7 +77,7 @@ export default function TaskCard({ task, onEdit, onMove, onDelete }) {
             type="button"
             disabled={!canForward}
             onClick={() => onMove(task, STATUS_ORDER[idx + 1])}
-            className="h-7 w-7 rounded-chip text-charcoal-mute hover:bg-cream-dark disabled:opacity-30"
+            className="h-9 w-9 sm:h-7 sm:w-7 rounded-chip text-charcoal-mute hover:bg-cream-dark disabled:opacity-30"
             aria-label="Move forward"
           >
             →
@@ -84,7 +86,7 @@ export default function TaskCard({ task, onEdit, onMove, onDelete }) {
         <button
           type="button"
           onClick={() => onDelete(task)}
-          className="text-xs text-charcoal-mute hover:text-amber"
+          className="text-xs text-charcoal-mute hover:text-amber px-2 py-2 sm:py-0"
         >
           delete
         </button>

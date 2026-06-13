@@ -65,10 +65,13 @@ export default function BoardView() {
           </p>
         )}
 
-        <div className="grid gap-10 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
           <StatsPanel tasks={tasks} onCreate={() => setEditing({})} />
 
-          <div className="grid gap-8 sm:grid-cols-3">
+          {/* Single column on mobile (each status reads vertically), three
+              columns from sm up. Min-w-0 on cells keeps long titles from
+              forcing horizontal scroll. */}
+          <div className="grid gap-6 sm:grid-cols-3 sm:gap-8">
             {STATUSES.map((status) => (
               <StatusColumn
                 key={status}
