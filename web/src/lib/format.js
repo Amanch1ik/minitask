@@ -1,5 +1,5 @@
-const dayFmt = new Intl.DateTimeFormat("en", { day: "numeric", month: "short" });
-const dayFmtLong = new Intl.DateTimeFormat("en", {
+const dayFmt = new Intl.DateTimeFormat("ru", { day: "numeric", month: "short" });
+const dayFmtLong = new Intl.DateTimeFormat("ru", {
   day: "numeric",
   month: "short",
   year: "numeric",
@@ -24,7 +24,7 @@ export function deadlineState(value) {
 }
 
 export function todayLabel() {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("ru", {
     weekday: "long",
     day: "numeric",
     month: "long",

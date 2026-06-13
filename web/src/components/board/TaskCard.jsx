@@ -1,45 +1,17 @@
-import { useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion } from "motion/react";
+import Avatar from "../ui/Avatar.jsx";
 import { formatDeadline, deadlineState } from "../../lib/format.js";
 
-const priorityDot = {
-  high: "bg-rose-500 ring-rose-400/30",
-  medium: "bg-zinc-400 ring-zinc-300/30",
-  low: "bg-zinc-300 ring-zinc-200/30",
+const PRIO_RU = { low: "Низкий", medium: "Средний", high: "Высокий" };
+const priorityPill = {
+  high: "bg-asana-coral-soft text-asana-coral-dark",
+  medium: "bg-amber-50 text-amber-700",
+  low: "bg-asana-side-bg text-asana-muted",
 };
 
 const STATUS_ORDER = ["todo", "in_progress", "done"];
 
-/**
- * Mouse-parallax tilt — rotateX/Y tracks the cursor position over the card,
- * sprung so it doesn't jitter. Disabled on touch (the card has no hover state
- * anyway). Children layered with translateZ so the title floats above the
- * background.
- */
-export default function TaskCard({ task, onEdit, onMove, onDelete }) {
-  const ref = useRef(null);
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.5);
-
-  const sx = useSpring(mx, { stiffness: 180, damping: 18, mass: 0.4 });
-  const sy = useSpring(my, { stiffness: 180, damping: 18, mass: 0.4 });
-
-  const rotateY = useTransform(sx, [0, 1], [-6, 6]);
-  const rotateX = useTransform(sy, [0, 1], [4, -4]);
-  const glareX = useTransform(sx, [0, 1], ["0%", "100%"]);
-  const glareY = useTransform(sy, [0, 1], ["0%", "100%"]);
-
-  function handleMove(e) {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    mx.set((e.clientX - rect.left) / rect.width);
-    my.set((e.clientY - rect.top) / rect.height);
-  }
-  function reset() {
-    mx.set(0.5);
-    my.set(0.5);
-  }
-
+export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
   const idx = STATUS_ORDER.indexOf(task.status);
   const canBack = idx > 0;
   const canForward = idx < STATUS_ORDER.length - 1;
@@ -48,110 +20,138 @@ export default function TaskCard({ task, onEdit, onMove, onDelete }) {
 
   return (
     <motion.article
-      ref={ref}
       layout
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -4, scale: 0.96 }}
-      transition={{ type: "spring", stiffness: 320, damping: 26 }}
-      onMouseMove={handleMove}
-      onMouseLeave={reset}
-      style={{
-        rotateX,
-        rotateY,
-        transformPerspective: 1000,
-        transformStyle: "preserve-3d",
-      }}
-      whileHover={{ y: -2 }}
-      className="group relative rounded-xl border border-zinc-200/80 bg-white/85 p-3.5 shadow-card backdrop-blur-md hover:shadow-lift focus-within:shadow-glow transition-shadow"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+      className="group rounded-lg border border-asana-border bg-white p-3 transition-shadow hover:shadow-lift"
     >
-      {/* Specular glare — a soft light spot that follows the cursor across the
-          surface. Pure CSS, no extra paint. */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
-        style={{
-          background: useTransform(
-            [glareX, glareY],
-            ([x, y]) =>
-              `radial-gradient(220px circle at ${x} ${y}, rgba(99,102,241,0.10), transparent 60%)`,
-          ),
-        }}
-      />
-
       <button
         type="button"
         onClick={() => onEdit(task)}
-        className="relative block w-full text-left"
-        style={{ transform: "translateZ(20px)" }}
+        className="block w-full text-left"
       >
-        <h3 className="text-sm font-medium leading-snug text-zinc-900 break-words">
-          {task.title}
-        </h3>
+        <div className="flex items-start gap-2.5">
+          <Checkbox done={task.status === "done"} />
+          <h3
+            className={`flex-1 text-[14px] font-medium leading-snug ${
+              task.status === "done"
+                ? "text-asana-subtle line-through"
+                : "text-asana-ink"
+            }`}
+          >
+            {task.title}
+          </h3>
+        </div>
 
         {task.description && (
-          <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-zinc-500">
+          <p className="mt-1.5 ml-7 line-clamp-2 text-[13px] leading-relaxed text-asana-muted">
             {task.description}
           </p>
         )}
 
-        <div className="mt-2.5 flex items-center gap-2 text-xs text-zinc-500">
-          <span className="inline-flex items-center gap-1.5">
-            <span
-              className={`h-1.5 w-1.5 rounded-full ring-2 ${priorityDot[task.priority]}`}
-            />
-            {task.priority}
+        <div className="mt-3 ml-7 flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium ${priorityPill[task.priority]}`}
+          >
+            {PRIO_RU[task.priority]}
           </span>
           {dlLabel && (
-            <>
-              <span className="text-zinc-300">·</span>
-              <span
-                className={`tabular font-mono ${
-                  dlState === "overdue" ? "text-rose-600" : "text-zinc-500"
-                }`}
-              >
-                {dlLabel}
-              </span>
-            </>
+            <span
+              className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] tabular ${
+                dlState === "overdue"
+                  ? "bg-asana-coral-soft text-asana-coral-dark"
+                  : "bg-asana-side-bg text-asana-muted"
+              }`}
+            >
+              <CalIcon className="h-3 w-3" />
+              {dlLabel}
+            </span>
           )}
+          <span className="ml-auto">
+            <Avatar name={owner ?? ""} size={22} />
+          </span>
         </div>
       </button>
 
-      <div
-        className="relative mt-3 flex items-center justify-between border-t border-zinc-100 pt-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
-        style={{ transform: "translateZ(18px)" }}
-      >
+      <div className="mt-2.5 ml-7 flex items-center justify-between border-t border-asana-border pt-2 text-[12px] transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
         <div className="flex gap-0.5">
-          <motion.button
+          <button
             type="button"
-            whileTap={{ scale: 0.9 }}
             disabled={!canBack}
             onClick={() => onMove(task, STATUS_ORDER[idx - 1])}
-            className="h-7 w-7 grid place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-30 disabled:hover:bg-transparent"
-            aria-label="Move back"
+            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30"
+            aria-label="Назад"
           >
             ←
-          </motion.button>
-          <motion.button
+          </button>
+          <button
             type="button"
-            whileTap={{ scale: 0.9 }}
             disabled={!canForward}
             onClick={() => onMove(task, STATUS_ORDER[idx + 1])}
-            className="h-7 w-7 grid place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-30 disabled:hover:bg-transparent"
-            aria-label="Move forward"
+            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30"
+            aria-label="Вперёд"
           >
             →
-          </motion.button>
+          </button>
         </div>
-        <motion.button
+        <button
           type="button"
-          whileTap={{ scale: 0.94 }}
           onClick={() => onDelete(task)}
-          className="text-xs text-zinc-400 hover:text-rose-600 px-2 py-1"
+          className="text-asana-muted hover:text-asana-coral"
         >
-          delete
-        </motion.button>
+          Удалить
+        </button>
       </div>
     </motion.article>
+  );
+}
+
+function Checkbox({ done }) {
+  return (
+    <span
+      className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-[1.5px] transition-colors ${
+        done
+          ? "border-emerald-500 bg-emerald-500 text-white"
+          : "border-asana-border-strong"
+      }`}
+      aria-hidden
+    >
+      {done && (
+        <svg viewBox="0 0 12 12" className="h-2.5 w-2.5">
+          <path
+            d="M2.5 6.5 5 9l4.5-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </span>
+  );
+}
+
+function CalIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 12 12" fill="none">
+      <rect
+        x="1.5"
+        y="2.5"
+        width="9"
+        height="8"
+        rx="1"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M1.5 5h9M4 1.5v2M8 1.5v2"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

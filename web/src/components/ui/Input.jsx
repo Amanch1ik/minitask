@@ -10,22 +10,27 @@ const Input = forwardRef(function Input(
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-zinc-800">
+        <label
+          htmlFor={id}
+          className="mb-1.5 block text-[13px] font-medium text-asana-ink"
+        >
           {label}
         </label>
       )}
       <input
         ref={ref}
         id={id}
-        className={`block h-10 w-full rounded-lg border bg-white/80 px-3 text-sm text-zinc-900 placeholder:text-zinc-400 backdrop-blur-sm focus:outline-none transition-all ${
+        className={`block h-10 w-full rounded-md border bg-white px-3 text-[14px] text-asana-ink placeholder:text-asana-subtle focus:outline-none transition-all ${
           error
-            ? "border-rose-300 focus-visible:shadow-[0_0_0_3px_rgba(244,63,94,0.18)]"
-            : "border-zinc-200 hover:border-zinc-300 focus-visible:border-accent focus-visible:shadow-ringFocus"
+            ? "border-asana-coral focus-visible:shadow-focus"
+            : "border-asana-border hover:border-asana-border-strong focus-visible:border-asana-coral focus-visible:shadow-focus"
         }`}
         {...rest}
       />
       {(hint || error) && (
-        <p className={`mt-1.5 text-xs ${error ? "text-rose-600" : "text-zinc-500"}`}>
+        <p
+          className={`mt-1.5 text-xs ${error ? "text-asana-coral" : "text-asana-muted"}`}
+        >
           {error ?? hint}
         </p>
       )}

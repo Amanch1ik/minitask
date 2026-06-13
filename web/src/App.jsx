@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useAuth } from "./stores/auth.js";
 import AuthView from "./views/AuthView.jsx";
 import BoardView from "./views/BoardView.jsx";
-import Ambient from "./components/ui/Ambient.jsx";
 
 export default function App() {
   const { user, hydrated, hydrate } = useAuth();
@@ -11,18 +10,7 @@ export default function App() {
     hydrate();
   }, [hydrate]);
 
-  if (!hydrated) {
-    return (
-      <>
-        <Ambient />
-      </>
-    );
-  }
+  if (!hydrated) return null;
 
-  return (
-    <>
-      <Ambient />
-      {user ? <BoardView /> : <AuthView />}
-    </>
-  );
+  return user ? <BoardView /> : <AuthView />;
 }

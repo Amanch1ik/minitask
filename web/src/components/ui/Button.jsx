@@ -1,20 +1,18 @@
-import { motion } from "motion/react";
-
 const variants = {
   primary:
-    "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-700 disabled:bg-zinc-300 disabled:text-zinc-500 disabled:cursor-not-allowed shadow-card hover:shadow-lift",
+    "bg-asana-coral text-white hover:bg-asana-coral-dark active:scale-[0.98] disabled:bg-asana-border-strong disabled:text-asana-subtle disabled:cursor-not-allowed",
   secondary:
-    "bg-white text-zinc-900 border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 active:bg-zinc-100 disabled:opacity-50 shadow-card",
+    "bg-white text-asana-ink border border-asana-border hover:bg-asana-side-bg hover:border-asana-border-strong active:scale-[0.98] disabled:opacity-50",
   ghost:
-    "bg-transparent text-zinc-700 hover:bg-zinc-100 active:bg-zinc-200 disabled:opacity-50",
+    "bg-transparent text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink active:bg-asana-side-active",
   danger:
-    "bg-transparent text-zinc-500 hover:text-rose-600 hover:bg-rose-50 active:bg-rose-100",
+    "bg-transparent text-asana-muted hover:text-asana-coral hover:bg-asana-coral-soft active:scale-[0.98]",
 };
 
 const sizes = {
-  sm: "h-8 px-3 text-sm rounded-md",
-  md: "h-9 px-3.5 text-sm rounded-md",
-  lg: "h-10 px-4 text-sm rounded-lg",
+  sm: "h-7 px-2.5 text-[13px] rounded-md",
+  md: "h-8 px-3 text-[13px] rounded-md",
+  lg: "h-10 px-4 text-sm rounded-md",
 };
 
 export default function Button({
@@ -25,14 +23,11 @@ export default function Button({
   ...rest
 }) {
   return (
-    <motion.button
-      whileHover={{ y: -1 }}
-      whileTap={{ y: 0, scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 380, damping: 24 }}
-      className={`inline-flex items-center justify-center gap-1.5 font-medium transition-colors focus:outline-none focus-visible:shadow-ringFocus ${variants[variant]} ${sizes[size]} ${className}`}
+    <button
+      className={`inline-flex items-center justify-center gap-1.5 font-medium transition-all focus:outline-none focus-visible:shadow-focus ${variants[variant]} ${sizes[size]} ${className}`}
       {...rest}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
