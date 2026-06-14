@@ -7,7 +7,10 @@
     color-scheme: light;
   }
 
-  html,
+  html {
+    background-color: #fafafa;
+  }
+
   body {
     font-family:
       "Inter",
@@ -16,7 +19,8 @@
       "Segoe UI",
       Roboto,
       sans-serif;
-    background-color: #fafafa;
+    /* Transparent so the app-wide VideoBackground shows through uniformly. */
+    background-color: transparent;
     color: #1e1f21;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -39,19 +43,6 @@
 }
 
 @layer components {
-  /* Asana-style square logo — rounded, hex-ish, with coral fill. */
-  .brand-mark {
-    display: grid;
-    place-items: center;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f06a6a 0%, #ef4444 100%);
-    color: #fff;
-    font-weight: 700;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      0 1px 2px rgba(240, 106, 106, 0.25);
-  }
-
   /* User avatar circle with initials. */
   .avatar {
     display: grid;

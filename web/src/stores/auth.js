@@ -27,9 +27,11 @@ export const useAuth = create((set) => ({
     set({ user });
   },
 
+  // Register no longer logs in — the account is locked until the email link is
+  // clicked. Returns the API message so the UI can prompt "check your inbox".
   register: async (email, password) => {
-    const user = await api.register(email, password);
-    set({ user });
+    const { message } = await api.register(email, password);
+    return message;
   },
 
   logout: async () => {

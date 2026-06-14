@@ -23,6 +23,24 @@ class Settings(BaseSettings):
 
     cors_origins: str = Field(default="http://localhost:5173", alias="CORS_ORIGINS")
 
+    # Base URL of the web app — used to build verify / reset links in emails.
+    public_web_url: str = Field(default="http://localhost:5173", alias="PUBLIC_WEB_URL")
+
+    # --- Email ---
+    # Leave SMTP_HOST empty for the free, zero-setup dev backend: the link is
+    # printed to the API log instead of being sent. Fill these in (e.g. a free
+    # Gmail app password) to send real mail.
+    email_from: str = Field(default="minitask <no-reply@minitask.local>", alias="EMAIL_FROM")
+    smtp_host: str = Field(default="", alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_user: str = Field(default="", alias="SMTP_USER")
+    smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
+    smtp_tls: bool = Field(default=True, alias="SMTP_TLS")
+
+    # --- Token TTLs (minutes) ---
+    verify_token_ttl_min: int = Field(default=60 * 24, alias="VERIFY_TOKEN_TTL_MIN")  # 1 day
+    reset_token_ttl_min: int = Field(default=60, alias="RESET_TOKEN_TTL_MIN")  # 1 hour
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

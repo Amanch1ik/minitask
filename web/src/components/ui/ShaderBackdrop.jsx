@@ -1,21 +1,26 @@
-import { GrainGradient, MeshGradient, Swirl } from "@paper-design/shaders-react";
+import { useEffect, useState } from "react";
+import { MeshGradient } from "@paper-design/shaders-react";
 
 /**
- * Layered WebGL backdrop adapted from the Axion shader stack — tuned for the
- * Asana surface. Four layers:
- *   1. MeshGradient — soft blobs of coral / blush / cream / ink that drift
- *   2. Swirl — adds depth through low-detail rotation
- *   3. GrainGradient — coral-tinted noise gradient layered on top
- *   4. SVG turbulence — static film grain so big flat areas have texture
+ * Layered backdrop for the auth surface. One animated WebGL layer only —
+ * stacking several full-viewport shaders (each with its own rAF loop and
+ * blend pass) pegs the GPU and freezes the page, especially under a
+ * `backdrop-filter` element. The mesh gradient carries the drifting-colour
+ * look on its own; static CSS + SVG grain do the rest for free.
+ *
+ * Under `prefers-reduced-motion` the WebGL layer is dropped entirely and only
+ * the static fallback renders — CSS media queries do not pause a rAF shader.
  */
 export default function ShaderBackdrop({ className = "" }) {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
     <div
       className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${className}`}
       aria-hidden
     >
-      {/* Static CSS fallback — sits beneath the shaders. Even if the WebGL
-          context lags (or is disabled), the surface is never a flat gray. */}
+      {/* Static CSS fallback — always present, so the surface is never flat
+          gray even if WebGL is disabled or motion is reduced. */}
       <div
         className="absolute inset-0"
         style={{
@@ -27,36 +32,16 @@ export default function ShaderBackdrop({ className = "" }) {
         }}
       />
 
-      <MeshGradient
-        className="absolute inset-0 h-full w-full"
-        style={{ opacity: 0.7, mixBlendMode: "multiply" }}
-        colors={["#fffaf4", "#fde4d8", "#f06a6a", "#ffffff", "#fff5ec"]}
-        distortion={0.8}
-        swirl={0.5}
-        speed={0.25}
-      />
-
-      <Swirl
-        className="absolute inset-0 h-full w-full"
-        style={{ opacity: 0.35, mixBlendMode: "soft-light" }}
-        colorA="#ffffff"
-        colorB="#fde4d8"
-        bgColor="#00000000"
-        detail={1.7}
-        speed={0.3}
-        proportion={0.45}
-      />
-
-      <GrainGradient
-        className="absolute inset-0 h-full w-full"
-        style={{ opacity: 0.45, mixBlendMode: "soft-light" }}
-        colors={["#ffffff", "#fee2d6", "#f06a6a"]}
-        softness={1}
-        intensity={0.55}
-        noise={0.25}
-        shape="corners"
-        speed={0.18}
-      />
+      {!reducedMotion && (
+        <MeshGradient
+          className="absolute inset-0 h-full w-full"
+          style={{ opacity: 0.7, mixBlendMode: "multiply" }}
+          colors={["#fffaf4", "#fde4d8", "#f06a6a", "#ffffff", "#fff5ec"]}
+          distortion={0.8}
+          swirl={0.5}
+          speed={0.25}
+        />
+      )}
 
       {/* SVG fractal turbulence — film grain. Static, cheap, no GPU. */}
       <div
@@ -68,4 +53,18 @@ export default function ShaderBackdrop({ className = "" }) {
       />
     </div>
   );
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = (e) => setReduced(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
 }

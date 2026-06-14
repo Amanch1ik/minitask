@@ -8,4 +8,10 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Run every test and fixture on one shared session loop. The async engine is
+# created at import and binds its asyncpg pool to the first loop it touches; a
+# per-test loop (the default) would leave the pool tied to a closed loop and
+# crash on teardown. pytest-asyncio 0.25 derives the test loop scope from this
+# same setting, so "session" unifies fixtures and tests onto one loop.
+asyncio_default_fixture_loop_scope = "session"
 testpaths = ["tests"]

@@ -43,7 +43,7 @@ export default function BoardView() {
   }
 
   return (
-    <div className="flex min-h-screen bg-asana-bg">
+    <div className="flex min-h-screen">
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">

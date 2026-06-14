@@ -1,5 +1,7 @@
 from httpx import AsyncClient
 
+from tests.conftest import register_verified
+
 
 async def test_create_task_minimum_payload(auth_client: AsyncClient):
     resp = await auth_client.post("/tasks", json={"title": "Write README"})
@@ -31,18 +33,12 @@ async def test_create_task_with_full_payload(auth_client: AsyncClient):
 
 async def test_list_returns_only_my_tasks(client: AsyncClient):
     # User A
-    await client.post(
-        "/auth/register",
-        json={"email": "a@example.com", "password": "supersecret"},
-    )
+    await register_verified(client, "a@example.com")
     await client.post("/tasks", json={"title": "A's task"})
 
     # User B (new cookie, replaces A's)
     client.cookies.clear()
-    await client.post(
-        "/auth/register",
-        json={"email": "b@example.com", "password": "supersecret"},
-    )
+    await register_verified(client, "b@example.com")
     await client.post("/tasks", json={"title": "B's task"})
 
     resp = await client.get("/tasks")
@@ -68,19 +64,13 @@ async def test_update_status_keeps_other_fields(auth_client: AsyncClient):
 
 async def test_other_users_task_returns_404(client: AsyncClient):
     # A creates a task
-    await client.post(
-        "/auth/register",
-        json={"email": "owner@example.com", "password": "supersecret"},
-    )
+    await register_verified(client, "owner@example.com")
     created = await client.post("/tasks", json={"title": "Private"})
     task_id = created.json()["id"]
 
     # B logs in
     client.cookies.clear()
-    await client.post(
-        "/auth/register",
-        json={"email": "outsider@example.com", "password": "supersecret"},
-    )
+    await register_verified(client, "outsider@example.com")
 
     # 404, not 403 — id existence must stay hidden.
     resp = await client.get(f"/tasks/{task_id}")

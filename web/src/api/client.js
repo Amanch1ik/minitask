@@ -58,6 +58,13 @@ export const api = {
     request("/auth/register", { method: "POST", body: { email, password } }),
   login: (email, password) =>
     request("/auth/login", { method: "POST", body: { email, password } }),
+  verify: (token) => request("/auth/verify", { method: "POST", body: { token } }),
+  resendVerification: (email) =>
+    request("/auth/resend-verification", { method: "POST", body: { email } }),
+  forgotPassword: (email) =>
+    request("/auth/forgot-password", { method: "POST", body: { email } }),
+  resetPassword: (token, password) =>
+    request("/auth/reset-password", { method: "POST", body: { token, password } }),
   me: () => request("/auth/me"),
   logout: () => request("/auth/logout", { method: "POST" }),
 

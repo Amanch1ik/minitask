@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Avatar from "../ui/Avatar.jsx";
+import { LogoMark } from "../ui/Logo.jsx";
 
 const spring = { type: "spring", stiffness: 380, damping: 32 };
 
@@ -15,6 +16,9 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
       className="flex h-14 items-center justify-between border-b border-asana-border bg-white px-4 sm:px-6"
     >
       <div className="flex min-w-0 items-center gap-3">
+        <span className="lg:hidden">
+          <LogoMark size={24} />
+        </span>
         <p className="truncate text-[15px] font-semibold text-asana-ink">
           Моя доска
         </p>
