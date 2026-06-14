@@ -4,7 +4,7 @@ import AuthView from "./views/AuthView.jsx";
 import BoardView from "./views/BoardView.jsx";
 import VerifyView from "./views/VerifyView.jsx";
 import ResetPasswordView from "./views/ResetPasswordView.jsx";
-import VideoBackground from "./components/ui/VideoBackground.jsx";
+import GlowBackground from "./components/ui/GlowBackground.jsx";
 
 export default function App() {
   const { user, hydrated, hydrate } = useAuth();
@@ -18,7 +18,7 @@ export default function App() {
   if (path === "/verify") {
     return (
       <>
-        <VideoBackground />
+        <GlowBackground />
         <VerifyView />
       </>
     );
@@ -26,7 +26,7 @@ export default function App() {
   if (path === "/reset-password") {
     return (
       <>
-        <VideoBackground />
+        <GlowBackground />
         <ResetPasswordView />
       </>
     );
@@ -38,7 +38,7 @@ export default function App() {
   // on auth and on the board.
   return (
     <>
-      <VideoBackground />
+      <GlowBackground />
       {user ? <BoardView /> : <AuthView />}
     </>
   );

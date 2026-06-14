@@ -1,9 +1,9 @@
 import { useId } from "react";
 
 /**
- * Минитаск brand mark — a rounded "app-icon" square with a coral gradient and a
+ * Минитаск brand mark — a rounded "app-icon" square with a teal gradient and a
  * white checkmark (the "task done" metaphor). Optionally followed by the
- * wordmark. SVG, so it stays crisp at any size.
+ * Fraunces wordmark. SVG, so it stays crisp at any size.
  */
 export default function Logo({ className = "", size = 28, withWord = false }) {
   return (
@@ -11,8 +11,8 @@ export default function Logo({ className = "", size = 28, withWord = false }) {
       <LogoMark size={size} />
       {withWord && (
         <span
-          className="font-display font-semibold tracking-tight text-asana-ink"
-          style={{ fontSize: Math.round(size * 0.56) }}
+          className="font-display font-medium tracking-tight text-charcoal"
+          style={{ fontSize: Math.round(size * 0.62) }}
         >
           Минитаск
         </span>
@@ -35,8 +35,8 @@ export function LogoMark({ size = 28 }) {
     >
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#f87a6a" />
-          <stop offset="1" stopColor="#ec4f4f" />
+          <stop stopColor="#19c6b2" />
+          <stop offset="1" stopColor="#0f9d8f" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="9" fill={`url(#${id})`} />
