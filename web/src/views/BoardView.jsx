@@ -7,6 +7,7 @@ import Sidebar from "../components/layout/Sidebar.jsx";
 import TopBar from "../components/layout/TopBar.jsx";
 import StatusColumn from "../components/board/StatusColumn.jsx";
 import TaskDialog from "../components/board/TaskDialog.jsx";
+import AnimatedCounter from "../components/ui/AnimatedCounter.jsx";
 
 const STATUSES = ["todo", "in_progress", "done"];
 const ease = [0.16, 1, 0.3, 1];
@@ -62,9 +63,13 @@ export default function BoardView() {
           >
             <div className="flex items-center gap-4">
               <p className="text-sm text-asana-muted tabular">
-                <span className="font-medium text-asana-ink">{active}</span>{" "}
+                <span className="font-medium text-asana-ink">
+                  <AnimatedCounter value={active} />
+                </span>{" "}
                 в работе ·{" "}
-                <span className="font-medium text-asana-ink">{done}</span>{" "}
+                <span className="font-medium text-asana-ink">
+                  <AnimatedCounter value={done} />
+                </span>{" "}
                 готово
               </p>
             </div>

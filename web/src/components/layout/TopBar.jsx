@@ -1,11 +1,19 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import Avatar from "../ui/Avatar.jsx";
+
+const spring = { type: "spring", stiffness: 380, damping: 32 };
 
 export default function TopBar({ email, onLogout, view = "board", onView }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-asana-border bg-white px-4 sm:px-6">
+    <motion.header
+      initial={{ y: -16, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 32 }}
+      className="flex h-14 items-center justify-between border-b border-asana-border bg-white px-4 sm:px-6"
+    >
       <div className="flex min-w-0 items-center gap-3">
         <p className="truncate text-[15px] font-semibold text-asana-ink">
           Моя доска
@@ -15,52 +23,68 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
+        <motion.button
           type="button"
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          transition={spring}
           className="hidden h-8 items-center gap-1.5 rounded-md border border-asana-border bg-white px-2.5 text-[13px] text-asana-muted hover:bg-asana-side-bg sm:inline-flex"
           aria-label="Поделиться"
         >
           <ShareIcon className="h-3.5 w-3.5" />
           Поделиться
-        </button>
+        </motion.button>
 
         <div className="relative">
-          <button
+          <motion.button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
+            whileTap={{ scale: 0.94 }}
+            transition={spring}
             className="flex items-center gap-2 rounded-full p-0.5 hover:bg-asana-side-bg"
             aria-label="Меню пользователя"
           >
             <Avatar name={email ?? ""} size={28} />
-          </button>
-          {menuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-lg border border-asana-border bg-white shadow-lift">
-                <div className="border-b border-asana-border px-3 py-3">
-                  <p className="text-[11px] uppercase tracking-wider text-asana-subtle">
-                    Вошёл как
-                  </p>
-                  <p className="mt-0.5 truncate text-[13px] font-medium text-asana-ink">
-                    {email}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  className="block w-full px-3 py-2 text-left text-[13px] text-asana-ink hover:bg-asana-side-bg"
+          </motion.button>
+          <AnimatePresence>
+            {menuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setMenuOpen(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 460, damping: 36 }}
+                  style={{ transformOrigin: "top right" }}
+                  className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-lg border border-asana-border bg-white shadow-lift"
                 >
-                  Выйти
-                </button>
-              </div>
-            </>
-          )}
+                  <div className="border-b border-asana-border px-3 py-3">
+                    <p className="text-[11px] uppercase tracking-wider text-asana-subtle">
+                      Вошёл как
+                    </p>
+                    <p className="mt-0.5 truncate text-[13px] font-medium text-asana-ink">
+                      {email}
+                    </p>
+                  </div>
+                  <motion.button
+                    type="button"
+                    onClick={onLogout}
+                    whileHover={{ x: 2 }}
+                    transition={spring}
+                    className="block w-full px-3 py-2 text-left text-[13px] text-asana-ink hover:bg-asana-side-bg"
+                  >
+                    Выйти
+                  </motion.button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
 
@@ -71,7 +95,7 @@ function ViewTabs({ value, onChange }) {
     { id: "calendar", label: "Календарь" },
   ];
   return (
-    <div className="hidden items-center gap-0.5 rounded-md p-0.5 sm:flex">
+    <div className="hidden items-center gap-0.5 p-0.5 sm:flex">
       {tabs.map((t) => {
         const active = t.id === value;
         const disabled = t.id !== "board";
@@ -81,15 +105,22 @@ function ViewTabs({ value, onChange }) {
             type="button"
             disabled={disabled}
             onClick={() => onChange?.(t.id)}
-            className={`h-8 rounded-md px-3 text-[13px] transition-colors ${
+            className={`relative h-8 rounded-md px-3 text-[13px] transition-colors ${
               active
-                ? "bg-asana-side-active text-asana-ink font-medium"
+                ? "text-asana-ink font-medium"
                 : disabled
                   ? "text-asana-subtle/70 cursor-not-allowed"
-                  : "text-asana-muted hover:bg-asana-side-bg"
+                  : "text-asana-muted hover:text-asana-ink"
             }`}
           >
-            {t.label}
+            {active && (
+              <motion.span
+                layoutId="tab-pill"
+                className="absolute inset-0 -z-0 rounded-md bg-asana-side-active"
+                transition={{ type: "spring", stiffness: 460, damping: 38 }}
+              />
+            )}
+            <span className="relative z-10">{t.label}</span>
           </button>
         );
       })}

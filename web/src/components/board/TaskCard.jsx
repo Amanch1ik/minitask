@@ -10,6 +10,8 @@ const priorityPill = {
 };
 
 const STATUS_ORDER = ["todo", "in_progress", "done"];
+const spring = { type: "spring", stiffness: 320, damping: 30 };
+const tinySpring = { type: "spring", stiffness: 520, damping: 32 };
 
 export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
   const idx = STATUS_ORDER.indexOf(task.status);
@@ -20,11 +22,16 @@ export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
 
   return (
     <motion.article
+      // layoutId ties the same card together when it moves between columns,
+      // so dragging a task across status lanes FLIP-animates between its old
+      // and new position rather than fading out and in.
+      layoutId={`task-${task.id}`}
       layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: 8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.16 } }}
+      whileHover={{ y: -2 }}
+      transition={spring}
       className="group rounded-lg border border-asana-border bg-white p-3 transition-shadow hover:shadow-lift"
     >
       <button
@@ -35,7 +42,7 @@ export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
         <div className="flex items-start gap-2.5">
           <Checkbox done={task.status === "done"} />
           <h3
-            className={`flex-1 text-[14px] font-medium leading-snug ${
+            className={`flex-1 text-[14px] font-medium leading-snug transition-colors ${
               task.status === "done"
                 ? "text-asana-subtle line-through"
                 : "text-asana-ink"
@@ -52,13 +59,15 @@ export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
         )}
 
         <div className="mt-3 ml-7 flex flex-wrap items-center gap-2">
-          <span
+          <motion.span
+            layout="position"
             className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium ${priorityPill[task.priority]}`}
           >
             {PRIO_RU[task.priority]}
-          </span>
+          </motion.span>
           {dlLabel && (
-            <span
+            <motion.span
+              layout="position"
               className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] tabular ${
                 dlState === "overdue"
                   ? "bg-asana-coral-soft text-asana-coral-dark"
@@ -67,7 +76,7 @@ export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
             >
               <CalIcon className="h-3 w-3" />
               {dlLabel}
-            </span>
+            </motion.span>
           )}
           <span className="ml-auto">
             <Avatar name={owner ?? ""} size={22} />
@@ -75,62 +84,79 @@ export default function TaskCard({ task, owner, onEdit, onMove, onDelete }) {
         </div>
       </button>
 
-      <div className="mt-2.5 ml-7 flex items-center justify-between border-t border-asana-border pt-2 text-[12px] transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+      <motion.div
+        layout="position"
+        className="mt-2.5 ml-7 flex items-center justify-between border-t border-asana-border pt-2 text-[12px] transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
+      >
         <div className="flex gap-0.5">
-          <button
+          <motion.button
             type="button"
+            whileHover={{ x: -2 }}
+            whileTap={{ scale: 0.88 }}
+            transition={tinySpring}
             disabled={!canBack}
             onClick={() => onMove(task, STATUS_ORDER[idx - 1])}
-            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30"
+            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30 disabled:hover:bg-transparent"
             aria-label="Назад"
           >
             ←
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ x: 2 }}
+            whileTap={{ scale: 0.88 }}
+            transition={tinySpring}
             disabled={!canForward}
             onClick={() => onMove(task, STATUS_ORDER[idx + 1])}
-            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30"
+            className="grid h-6 w-6 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink disabled:opacity-30 disabled:hover:bg-transparent"
             aria-label="Вперёд"
           >
             →
-          </button>
+          </motion.button>
         </div>
-        <button
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.94 }}
+          transition={tinySpring}
           onClick={() => onDelete(task)}
           className="text-asana-muted hover:text-asana-coral"
         >
           Удалить
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </motion.article>
   );
 }
 
 function Checkbox({ done }) {
   return (
-    <span
-      className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-[1.5px] transition-colors ${
-        done
-          ? "border-emerald-500 bg-emerald-500 text-white"
-          : "border-asana-border-strong"
-      }`}
+    <motion.span
+      animate={done ? "done" : "todo"}
+      variants={{
+        done: { backgroundColor: "#10b981", borderColor: "#10b981" },
+        todo: { backgroundColor: "rgba(0,0,0,0)", borderColor: "#bfbfc1" },
+      }}
+      transition={{ type: "spring", stiffness: 460, damping: 26 }}
+      className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full border-[1.5px] text-white"
       aria-hidden
     >
-      {done && (
-        <svg viewBox="0 0 12 12" className="h-2.5 w-2.5">
-          <path
-            d="M2.5 6.5 5 9l4.5-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-    </span>
+      <motion.svg
+        viewBox="0 0 12 12"
+        className="h-2.5 w-2.5"
+        initial={false}
+        animate={{ opacity: done ? 1 : 0, scale: done ? 1 : 0.6 }}
+        transition={{ type: "spring", stiffness: 520, damping: 30 }}
+      >
+        <path
+          d="M2.5 6.5 5 9l4.5-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </motion.svg>
+    </motion.span>
   );
 }
 

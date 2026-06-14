@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import Logo from "../ui/Logo.jsx";
 
 const navItems = [
@@ -13,29 +14,60 @@ const projects = [
   { id: "p3", label: "Учёба", color: "#34d399" },
 ];
 
+const spring = { type: "spring", stiffness: 320, damping: 34 };
+
 export default function Sidebar() {
   return (
-    <aside className="hidden w-[240px] shrink-0 flex-col border-r border-asana-border bg-asana-side-bg lg:flex">
+    <motion.aside
+      initial={{ x: -28, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 32, delay: 0.05 }}
+      className="hidden w-[240px] shrink-0 flex-col border-r border-asana-border bg-asana-side-bg lg:flex"
+    >
       <div className="flex h-14 items-center gap-2 border-b border-asana-border px-4">
         <Logo size={26} withWord />
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
+      <motion.nav
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+        }}
+        className="flex-1 overflow-y-auto px-2 py-4"
+      >
         <ul className="space-y-0.5">
           {navItems.map((item) => (
-            <li key={item.id}>
-              <button
+            <motion.li
+              key={item.id}
+              variants={{
+                hidden: { opacity: 0, x: -8 },
+                show: { opacity: 1, x: 0, transition: spring },
+              }}
+            >
+              <motion.button
                 type="button"
-                className={`flex h-8 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] transition-colors ${
+                whileHover={{ x: 1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={spring}
+                className={`relative flex h-8 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] transition-colors ${
                   item.active
-                    ? "bg-asana-side-active text-asana-ink font-medium"
+                    ? "text-asana-ink font-medium"
                     : "text-asana-muted hover:bg-asana-side-hover hover:text-asana-ink"
                 }`}
               >
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </button>
-            </li>
+                {item.active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-0 -z-0 rounded-md bg-asana-side-active"
+                    transition={{ type: "spring", stiffness: 380, damping: 36 }}
+                  />
+                )}
+                <item.icon className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">{item.label}</span>
+              </motion.button>
+            </motion.li>
           ))}
         </ul>
 
@@ -43,19 +75,30 @@ export default function Sidebar() {
           <p className="text-[11px] font-semibold uppercase tracking-wider text-asana-subtle">
             Проекты
           </p>
-          <button
+          <motion.button
             type="button"
+            whileHover={{ rotate: 90, scale: 1.05 }}
+            whileTap={{ scale: 0.9 }}
+            transition={spring}
             className="grid h-5 w-5 place-items-center rounded text-asana-muted hover:bg-asana-side-hover hover:text-asana-ink"
             aria-label="Новый проект"
           >
             +
-          </button>
+          </motion.button>
         </div>
         <ul className="space-y-0.5">
           {projects.map((p) => (
-            <li key={p.id}>
-              <button
+            <motion.li
+              key={p.id}
+              variants={{
+                hidden: { opacity: 0, x: -8 },
+                show: { opacity: 1, x: 0, transition: spring },
+              }}
+            >
+              <motion.button
                 type="button"
+                whileHover={{ x: 2 }}
+                transition={spring}
                 className="flex h-8 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] text-asana-muted hover:bg-asana-side-hover hover:text-asana-ink"
               >
                 <span
@@ -63,16 +106,16 @@ export default function Sidebar() {
                   style={{ backgroundColor: p.color }}
                 />
                 <span>{p.label}</span>
-              </button>
-            </li>
+              </motion.button>
+            </motion.li>
           ))}
         </ul>
-      </nav>
+      </motion.nav>
 
       <div className="border-t border-asana-border px-3 py-3 text-[12px] text-asana-subtle">
         <p>Бесплатный план · v0.1</p>
       </div>
-    </aside>
+    </motion.aside>
   );
 }
 
