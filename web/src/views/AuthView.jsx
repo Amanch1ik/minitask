@@ -2,7 +2,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Input from "../components/ui/Input.jsx";
 import Logo from "../components/ui/Logo.jsx";
-import Button from "../components/ui/Button.jsx";
+import RollButton from "../components/ui/RollButton.jsx";
+import ShaderBackdrop from "../components/ui/ShaderBackdrop.jsx";
 import { useAuth } from "../stores/auth.js";
 
 const spring = { type: "spring", stiffness: 320, damping: 30 };
@@ -41,7 +42,17 @@ export default function AuthView() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-asana-bg px-4 py-16">
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16"
+      style={{
+        background:
+          "radial-gradient(60% 50% at 18% 22%, #fff5ec 0%, transparent 65%)," +
+          "radial-gradient(55% 60% at 85% 78%, #fde4d8 0%, transparent 60%)," +
+          "radial-gradient(45% 50% at 78% 14%, #fee2d6 0%, transparent 55%)," +
+          "linear-gradient(135deg, #fafafa 0%, #f7f5f1 50%, #fffaf4 100%)",
+      }}
+    >
+      <ShaderBackdrop />
       <motion.div
         initial="hidden"
         animate="show"
@@ -91,7 +102,7 @@ export default function AuthView() {
             hidden: { opacity: 0, y: 12 },
             show: { opacity: 1, y: 0, transition: spring },
           }}
-          className="rounded-lg border border-asana-border bg-asana-surface p-6 shadow-card"
+          className="rounded-2xl border border-asana-border bg-white/80 p-6 shadow-card backdrop-blur-xl"
         >
           <form onSubmit={submit} className="space-y-4">
             <Input
@@ -129,19 +140,13 @@ export default function AuthView() {
               )}
             </AnimatePresence>
 
-            <Button type="submit" size="lg" disabled={busy} className="w-full">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={`${mode}-${busy}`}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  {busy ? "..." : isLogin ? "Войти" : "Создать аккаунт"}
-                </motion.span>
-              </AnimatePresence>
-            </Button>
+            <RollButton
+              type="submit"
+              disabled={busy}
+              className="w-full justify-between"
+            >
+              {busy ? "Один момент..." : isLogin ? "Войти" : "Создать аккаунт"}
+            </RollButton>
           </form>
         </motion.div>
 
