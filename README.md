@@ -4,7 +4,7 @@ A small Linear-style task manager built as a test assignment. Email/password aut
 a three-lane board (todo / in progress / done), priority, deadline and a description
 field. The session stays on the device through an httpOnly cookie, so signing in
 is a one-time thing.
-
+ 
 ```
               ┌─────────────────────────────┐
               │           web               │
