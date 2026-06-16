@@ -1,15 +1,16 @@
 # minitask
 
-A task board with email/password auth and a clean, Asana-style board. Drag tasks
-between lanes, add them inline, group them into projects, and switch between
-board / today / calendar / archive views. Sessions live in an httpOnly cookie, so
-signing in is a one-time thing.
+Доска задач с регистрацией по email/паролю и аккуратным интерфейсом в стиле
+Asana. Перетаскивайте задачи между колонками, добавляйте их прямо в колонке,
+группируйте по проектам и переключайтесь между видами «Доска / Сегодня /
+Календарь / Архив». Сессия живёт в httpOnly-cookie, поэтому вход — разовое
+действие.
 
 ```
               ┌─────────────────────────────┐
               │            web              │
               │   React + Vite + Tailwind   │
-              │    served by nginx (5173)   │
+              │     отдаётся nginx (5173)   │
               └─────────────┬───────────────┘
                             │ httpOnly cookie
                             ▼
@@ -25,118 +26,118 @@ signing in is a one-time thing.
               └─────────────────────────────┘
 ```
 
-## Run it (one command)
+## Запуск (одной командой)
 
-You need Docker. From the project root:
+Нужен Docker. Из корня проекта:
 
 ```bash
 cp .env.example .env
 docker compose up --build
 ```
 
-Or use the helper script, which copies `.env` for you and starts everything:
+Или скрипт-обёртка — он сам скопирует `.env` и поднимет весь стек:
 
 ```bash
 ./run.sh        # macOS / Linux / Git Bash
 ./run.ps1       # Windows PowerShell
 ```
 
-Then open:
+Затем открыть:
 
-- **web** → <http://localhost:5173>
-- **api** → <http://localhost:8000> (OpenAPI docs at `/docs`)
-- postgres is exposed on `5433` so it won't clash with a local Postgres.
+- **веб** → <http://localhost:5173>
+- **api** → <http://localhost:8000> (Swagger на `/docs`)
+- postgres проброшен на `5433`, чтобы не конфликтовать с локальным Postgres.
 
-Migrations (`alembic upgrade head`) run automatically when the api container
-starts, so the schema is ready before the web bundle talks to the api.
+Миграции (`alembic upgrade head`) применяются автоматически при старте контейнера
+api, поэтому схема готова раньше, чем веб обратится к api.
 
-### Confirming your account in local dev
+### Подтверждение аккаунта в локальной разработке
 
-Registration sends a verification email. In local dev there's **no SMTP
-configured**, so instead of emailing, the api **prints the verification link to
-its log**. Grab it from there:
+Регистрация отправляет письмо с подтверждением. В локальной разработке **SMTP не
+настроен**, поэтому вместо отправки api **пишет ссылку подтверждения в свой лог**.
+Возьмите её оттуда:
 
 ```bash
 docker compose logs api | grep -i verify
 ```
 
-Open that link in the browser (it points at `http://localhost:5173/verify?...`)
-to confirm the account, then log in. To send real mail instead, fill in the
-`SMTP_*` values in `.env` (a free Gmail app password works).
+Откройте эту ссылку в браузере (она ведёт на `http://localhost:5173/verify?...`),
+подтвердите аккаунт и войдите. Чтобы слать настоящие письма, заполните значения
+`SMTP_*` в `.env` (подойдёт бесплатный пароль приложения Gmail).
 
-## Features
+## Возможности
 
-| Area | What's there |
-|------|--------------|
-| Auth | Register, login, logout, email verification, password reset — all over an httpOnly cookie session |
-| Board | Three lanes (todo / in progress / done) with drag-and-drop between them |
-| Tasks | Title, description, priority, deadline, status; inline quick-add per column or a full dialog |
-| Views | Board, Today (overdue + due today), Calendar (month grid), Archive (completed) |
-| Projects | Lightweight grouping/filter (Personal / Work / Study) assignable from the task dialog |
-| Responsive | Sidebar collapses into a slide-in drawer on mobile; the dialog adapts to the viewport |
+| Область | Что есть |
+|---------|----------|
+| Аутентификация | Регистрация, вход, выход, подтверждение email, сброс пароля — всё через httpOnly-cookie |
+| Доска | Три колонки (todo / in progress / done) с перетаскиванием задач между ними |
+| Задачи | Название, описание, приоритет, дедлайн, статус; быстрое добавление в колонке или полная форма |
+| Виды | Доска, Сегодня (просрочено + на сегодня), Календарь (сетка месяца), Архив (завершённые) |
+| Проекты | Лёгкая группировка-фильтр (Личное / Работа / Учёба), назначается в форме задачи |
+| Адаптивность | На мобильном сайдбар сворачивается в выезжающую панель; диалог подстраивается под экран |
 
-## Local development (without Docker)
+## Локальная разработка (без Docker)
 
 ```bash
 # api
 cd api
-python -m venv .venv && source .venv/bin/activate   # .venv/Scripts/Activate.ps1 on Windows
+python -m venv .venv && source .venv/bin/activate   # .venv/Scripts/Activate.ps1 на Windows
 pip install -r requirements-dev.txt
 export DATABASE_URL=postgresql+asyncpg://minitask:minitask@localhost:5432/minitask
 alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
-# web (separate terminal)
+# веб (в отдельном терминале)
 cd web
 npm install
 npm run dev
 ```
 
-The web dev server prints the local URL it picked (Vite). Point your browser there.
+Vite напечатает локальный адрес, который выбрал, — откройте его в браузере.
 
-## Architecture
+## Архитектура
 
-Two services with a thin contract between them.
+Два сервиса с тонким контрактом между ними.
 
-- **api** — FastAPI split into `routers/` (HTTP shape), `schemas/` (pydantic
-  request/response), `models.py` (SQLAlchemy ORM), `security.py` (bcrypt + JWT),
-  `deps.py` (the auth dependency). Settings are typed via `pydantic-settings` and
-  read from the environment at startup. The async SQLAlchemy session is yielded
-  per request through `get_db`.
-- **web** — Vite + React 18 (JSX, no TypeScript). A small zustand store gates the
-  app behind auth and checks the cookie on mount; server state lives in a
-  `useTasks` hook over a thin fetch client. Projects are a client-side grouping
-  layer persisted in `localStorage` — the task model itself stays minimal.
-  Animation uses `motion/react`.
+- **api** — FastAPI, разбит на `routers/` (форма HTTP), `schemas/` (pydantic
+  запрос/ответ), `models.py` (ORM SQLAlchemy), `security.py` (bcrypt + JWT),
+  `deps.py` (зависимость аутентификации). Настройки типизированы через
+  `pydantic-settings` и читаются из окружения при старте. Асинхронная сессия
+  SQLAlchemy выдаётся на каждый запрос через `get_db`.
+- **web** — Vite + React 18 (JSX, без TypeScript). Небольшой zustand-стор
+  закрывает приложение за аутентификацией и проверяет cookie при монтировании;
+  серверное состояние живёт в хуке `useTasks` поверх тонкого fetch-клиента.
+  Проекты — клиентский слой группировки в `localStorage`, сама модель задачи
+  остаётся минимальной. Анимации — на `motion/react`.
 
-## Security model
+## Модель безопасности
 
-- **Passwords** — bcrypt via passlib, cost 12. Schema enforces 8–72 characters
-  (72 is bcrypt's hard byte limit).
-- **Session** — JWT in an `httpOnly`, `SameSite=Lax` cookie. The web bundle never
-  touches the token, which removes a class of XSS exfiltration. Cookies flip to
-  `Secure` in production via env.
-- **Login error parity** — wrong password and unknown email return the same 401
-  with the same body, so accounts can't be enumerated.
-- **Registration conflict** — duplicate email returns 409 with a generic message.
-- **Email verification** — accounts are locked until the emailed link is
-  confirmed; login on an unverified account returns 403.
-- **Authorization** — every `/tasks` endpoint resolves the current user from the
-  cookie and filters by `owner_id`. A request for someone else's task id returns
-  404, never 403, so the response can't probe which ids exist.
-- **Rate limiting** — slowapi caps `/auth/register` at 5/min and `/auth/login` at
-  10/min per address.
-- **Input validation** — pydantic v2 with `EmailStr`, length bounds on every
-  string field, enums for status and priority; malformed input is a 422 before it
-  reaches the handler.
-- **SQL injection** — parameterised through SQLAlchemy; no raw SQL in app code.
-- **CORS** — restricted to the configured origin list with credentials enabled;
-  explicit methods and headers, no wildcards.
-- **Security headers** — `X-Content-Type-Options: nosniff`, `X-Frame-Options:
-  DENY`, `Referrer-Policy: strict-origin-when-cross-origin` at both the API
-  middleware and the nginx layer.
+- **Пароли** — bcrypt через passlib, cost 12. Схема требует 8–72 символа (72 —
+  жёсткий байтовый лимит bcrypt).
+- **Сессия** — JWT в `httpOnly`-cookie с `SameSite=Lax`. Веб-бандл никогда не
+  касается токена — это убирает целый класс утечек через XSS. В продакшене cookie
+  переключается на `Secure` через env.
+- **Паритет ошибок входа** — неверный пароль и неизвестный email дают одинаковый
+  401 с одинаковым телом, так что аккаунты нельзя перебрать.
+- **Конфликт регистрации** — повторный email возвращает 409 с общим сообщением.
+- **Подтверждение email** — аккаунт заблокирован, пока не подтверждена ссылка;
+  вход в неподтверждённый аккаунт возвращает 403.
+- **Авторизация** — каждый эндпоинт `/tasks` определяет пользователя из cookie и
+  фильтрует по `owner_id`. Запрос чужой задачи возвращает 404, а не 403 — чтобы по
+  ответу нельзя было выяснить, какие id существуют.
+- **Лимиты** — slowapi ограничивает `/auth/register` до 5/мин и `/auth/login` до
+  10/мин на адрес.
+- **Валидация входа** — pydantic v2 с `EmailStr`, ограничения длины на каждую
+  строку, enum для статуса и приоритета; некорректные данные — это 422 ещё до
+  обработчика.
+- **SQL-инъекции** — всё параметризовано через SQLAlchemy, сырого SQL в коде нет.
+- **CORS** — ограничен списком origin'ов с включёнными credentials; явные методы и
+  заголовки, без wildcard.
+- **Заголовки безопасности** — `X-Content-Type-Options: nosniff`, `X-Frame-Options:
+  DENY`, `Referrer-Policy: strict-origin-when-cross-origin` и на уровне middleware
+  API, и на nginx.
 
-## Tests
+## Тесты
 
 ```bash
 cd api
@@ -144,25 +145,25 @@ TEST_DATABASE_URL=postgresql+asyncpg://minitask:minitask@localhost:5433/minitask
   pytest -q
 ```
 
-Covers the register/login/me/logout flow, identical 401 for unknown email and
-wrong password, partial PATCH (a status change preserves the description), and a
-cross-user 404 on a foreign task id.
+Покрыто: поток register/login/me/logout, одинаковый 401 для неизвестного email и
+неверного пароля, частичный PATCH (смена статуса сохраняет описание),
+cross-user 404 на чужой id задачи.
 
-## Project layout
+## Структура проекта
 
 ```
 .
 ├── api/
-│   ├── alembic/                migrations
+│   ├── alembic/                миграции
 │   ├── app/
 │   │   ├── routers/            auth.py, tasks.py
-│   │   ├── schemas/            pydantic request/response
-│   │   ├── config.py           env-typed settings
-│   │   ├── db.py               async engine + session
+│   │   ├── schemas/            pydantic запрос/ответ
+│   │   ├── config.py           типизированные настройки из env
+│   │   ├── db.py               async-движок + сессия
 │   │   ├── deps.py             get_current_user
-│   │   ├── email.py            verification / reset mail (SMTP + dev console)
-│   │   ├── limiter.py          slowapi instance
-│   │   ├── main.py             app factory, CORS, headers
+│   │   ├── email.py            письма подтверждения / сброса (SMTP + dev-консоль)
+│   │   ├── limiter.py          инстанс slowapi
+│   │   ├── main.py             фабрика приложения, CORS, заголовки
 │   │   ├── models.py           User, Task
 │   │   └── security.py         bcrypt + JWT
 │   ├── tests/                  pytest + httpx async client
@@ -170,7 +171,7 @@ cross-user 404 on a foreign task id.
 │   └── requirements*.txt
 ├── web/
 │   ├── src/
-│   │   ├── api/client.js       fetch wrapper with credentials
+│   │   ├── api/client.js       fetch-обёртка с credentials
 │   │   ├── components/
 │   │   │   ├── board/          StatusColumn, TaskCard, TaskRow, TaskDialog
 │   │   │   ├── views/          TodayView, CalendarView, ArchiveView
@@ -178,9 +179,9 @@ cross-user 404 on a foreign task id.
 │   │   │   └── ui/             Button, Input, Avatar, …
 │   │   ├── hooks/              useTasks, useDismiss
 │   │   ├── lib/                format.js, projects.js
-│   │   ├── stores/auth.js      zustand auth state
+│   │   ├── stores/auth.js      состояние аутентификации (zustand)
 │   │   └── views/              AuthView, BoardView
-│   ├── Dockerfile              multi-stage build → nginx
+│   ├── Dockerfile              multi-stage сборка → nginx
 │   └── nginx.conf
 ├── .env.example
 ├── docker-compose.yml
@@ -188,9 +189,9 @@ cross-user 404 on a foreign task id.
 └── run.ps1
 ```
 
-## Notes for production
+## Заметки для продакшена
 
-- Split the single 30-day cookie into a short access token plus a refresh token.
-- Move rate limiting and any caching to Redis for multi-replica deploys.
-- Set `PUBLIC_WEB_URL` to the real domain so email links resolve off-machine, and
-  configure real SMTP.
+- Разделить одну 30-дневную cookie на короткий access-токен и refresh-токен.
+- Вынести лимиты и кэш в Redis для нескольких реплик.
+- Задать `PUBLIC_WEB_URL` на реальный домен, чтобы ссылки в письмах открывались вне
+  локальной машины, и настроить реальный SMTP.

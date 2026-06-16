@@ -1,11 +1,11 @@
-# Start the whole stack (postgres + api + web) with one command.
+# Поднять весь стек (postgres + api + web) одной командой.
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
 if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env"
-    Write-Host "-> created .env from .env.example"
+    Write-Host "-> создан .env из .env.example"
 }
 
-Write-Host "-> building and starting (web :5173, api :8000)..."
+Write-Host "-> сборка и запуск (веб :5173, api :8000)..."
 docker compose up --build
