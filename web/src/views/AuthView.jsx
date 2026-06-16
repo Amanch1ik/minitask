@@ -107,13 +107,12 @@ export default function AuthView() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
-              <p className="eyebrow text-teal">Минитаск</p>
-              <h1 className="mt-2 font-display text-[32px] font-medium leading-tight tracking-tight text-charcoal">
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-asana-ink">
                 {notice ? "Проверьте почту" : title.h}
               </h1>
-              <p className="mt-2 text-[14px] leading-relaxed text-asana-muted">
+              <p className="mt-1.5 text-sm text-asana-muted">
                 {notice ? notice.email : title.p}
               </p>
             </motion.div>
@@ -125,7 +124,7 @@ export default function AuthView() {
             hidden: { opacity: 0, y: 12 },
             show: { opacity: 1, y: 0, transition: spring },
           }}
-          className="rounded-2xl border border-asana-border bg-white/85 p-6 shadow-lift backdrop-blur-md"
+          className="rounded-2xl border border-asana-border bg-white/95 p-6 shadow-card"
         >
           {notice ? (
             <NoticePanel notice={notice} onBack={() => switchMode("login")} />
@@ -165,7 +164,7 @@ export default function AuthView() {
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={spring}
-                    className="overflow-hidden rounded-md border border-clay/40 bg-clay-soft px-3 py-2 text-sm text-[#9c3a33]"
+                    className="overflow-hidden rounded-md border border-asana-coral/40 bg-asana-coral-soft px-3 py-2 text-sm text-asana-coral-dark"
                   >
                     {error}
                   </motion.p>

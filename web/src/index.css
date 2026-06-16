@@ -8,30 +8,27 @@
   }
 
   html {
-    /* Cream, never pure white (vault: Design/visual-direction). */
-    background-color: #f8f4ee;
+    background-color: #fafafa;
   }
 
   body {
-    font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-    /* Transparent so the app-wide GlowBackground shows through uniformly. */
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    /* Transparent so the app-wide VideoBackground shows through uniformly. */
     background-color: transparent;
-    color: #2d2620;
+    color: #1e1f21;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
   }
 
   .tabular {
     font-variant-numeric: tabular-nums;
-  }
-
-  /* Eyebrow — mono, uppercase, wide tracking (vault: Patterns/ui-components). */
-  .eyebrow {
-    font-family: "JetBrains Mono", "Fira Code", monospace;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -53,19 +50,10 @@
     width: 28px;
     height: 28px;
     border-radius: 9999px;
-    background: linear-gradient(135deg, #14b8a6, #0f9d8f);
+    background: linear-gradient(135deg, #818cf8, #c084fc);
     color: #fff;
     font-size: 11px;
     font-weight: 600;
     flex-shrink: 0;
-  }
-
-  /* Grabbable card affordance for drag-and-drop. */
-  .grabbable {
-    cursor: grab;
-    touch-action: none;
-  }
-  .grabbable:active {
-    cursor: grabbing;
   }
 }

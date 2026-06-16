@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { X } from "lucide-react";
 import Button from "../ui/Button.jsx";
 import Input from "../ui/Input.jsx";
 import { toDateInput } from "../../lib/format.js";
@@ -76,33 +74,29 @@ export default function TaskDialog({
 
   const isEdit = Boolean(initial && initial.id);
 
-  // Portal to <body> — the dialog can never get trapped inside a parent
-  // stacking context, and AnimatePresence is the sole owner of mount/unmount.
-  return createPortal(
+  return (
     <AnimatePresence>
       {open && (
         <motion.div
-          key="task-dialog"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/45 px-4 backdrop-blur-[3px] sm:items-center"
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-asana-ink/40 px-4 backdrop-blur-[2px] sm:items-center"
           onClick={onClose}
         >
           <motion.div
-            initial={{ y: 28, opacity: 0, scale: 0.97 }}
+            initial={{ y: 32, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 20, opacity: 0, scale: 0.98 }}
+            exit={{ y: 24, opacity: 0, scale: 0.97 }}
             transition={spring}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-[480px] rounded-t-2xl border border-asana-border bg-cream shadow-drag sm:rounded-2xl"
+            className="w-full max-w-[480px] rounded-t-xl bg-white shadow-lift sm:rounded-lg"
             role="dialog"
             aria-modal="true"
-            aria-label={isEdit ? "Редактировать задачу" : "Новая задача"}
           >
-            <header className="flex items-center justify-between border-b border-asana-border px-5 py-4">
-              <h2 className="font-display text-[19px] font-medium tracking-tight text-charcoal">
+            <header className="flex items-center justify-between border-b border-asana-border px-5 py-3.5">
+              <h2 className="text-[15px] font-semibold text-asana-ink">
                 {isEdit ? "Редактировать задачу" : "Новая задача"}
               </h2>
               <motion.button
@@ -111,10 +105,10 @@ export default function TaskDialog({
                 whileHover={{ rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
                 transition={spring}
-                className="grid h-8 w-8 place-items-center rounded-md text-asana-muted transition-colors hover:bg-cream-deep hover:text-charcoal focus:outline-none focus-visible:shadow-focus"
+                className="grid h-7 w-7 place-items-center rounded text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink"
                 aria-label="Закрыть"
               >
-                <X className="h-4 w-4" strokeWidth={2.2} />
+                ✕
               </motion.button>
             </header>
 
@@ -125,15 +119,15 @@ export default function TaskDialog({
               animate="show"
               variants={{
                 hidden: {},
-                show: { transition: { staggerChildren: 0.04, delayChildren: 0.06 } },
+                show: { transition: { staggerChildren: 0.04, delayChildren: 0.08 } },
               }}
             >
               <FormRow>
                 <Input
                   label="Название"
-                  required
                   value={form.title}
                   onChange={set("title")}
+                  required
                   maxLength={200}
                   autoFocus
                   placeholder="Что нужно сделать?"
@@ -143,7 +137,7 @@ export default function TaskDialog({
               <FormRow>
                 <label
                   htmlFor="task-desc"
-                  className="mb-1.5 block text-[13px] font-medium text-charcoal"
+                  className="mb-1.5 block text-[13px] font-medium text-asana-ink"
                 >
                   Описание
                 </label>
@@ -152,7 +146,7 @@ export default function TaskDialog({
                   rows={3}
                   value={form.description}
                   onChange={set("description")}
-                  className="block w-full resize-none rounded-md border border-asana-border bg-white p-2.5 text-[14px] text-charcoal placeholder:text-asana-subtle transition-shadow focus:border-teal focus:shadow-focus focus:outline-none"
+                  className="block w-full resize-none rounded-md border border-asana-border bg-white p-2.5 text-[14px] text-asana-ink placeholder:text-asana-subtle focus:border-asana-coral focus:outline-none focus:shadow-focus transition-shadow"
                   placeholder="Необязательно"
                 />
               </FormRow>
@@ -164,7 +158,7 @@ export default function TaskDialog({
                     value={form.priority}
                     options={[
                       { v: "low", label: "Низкий" },
-                      { v: "medium", label: "Средн." },
+                      { v: "medium", label: "Сред" },
                       { v: "high", label: "Высокий" },
                     ]}
                     onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
@@ -173,7 +167,7 @@ export default function TaskDialog({
                   <div>
                     <label
                       htmlFor="task-deadline"
-                      className="mb-1.5 block text-[13px] font-medium text-charcoal"
+                      className="mb-1.5 block text-[13px] font-medium text-asana-ink"
                     >
                       Дедлайн
                     </label>
@@ -182,7 +176,7 @@ export default function TaskDialog({
                       type="date"
                       value={form.deadline}
                       onChange={set("deadline")}
-                      className="block h-10 w-full rounded-md border border-asana-border bg-white px-2.5 text-[14px] tabular text-charcoal transition-shadow focus:border-teal focus:shadow-focus focus:outline-none"
+                      className="block h-10 w-full rounded-md border border-asana-border bg-white px-2.5 text-[14px] tabular text-asana-ink focus:border-asana-coral focus:outline-none focus:shadow-focus transition-shadow"
                     />
                   </div>
                 </div>
@@ -205,12 +199,11 @@ export default function TaskDialog({
               <AnimatePresence>
                 {error && (
                   <motion.p
-                    role="alert"
                     initial={{ opacity: 0, y: -4, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={spring}
-                    className="overflow-hidden rounded-md border border-clay/40 bg-clay-soft px-3 py-2 text-sm text-[#9c3a33]"
+                    className="overflow-hidden rounded-md border border-asana-coral/40 bg-asana-coral-soft px-3 py-2 text-sm text-asana-coral-dark"
                   >
                     {error}
                   </motion.p>
@@ -218,19 +211,23 @@ export default function TaskDialog({
               </AnimatePresence>
 
               <FormRow className="flex items-center justify-end gap-2 border-t border-asana-border pt-4">
-                <Button type="button" variant="ghost" onClick={onClose} disabled={busy}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={onClose}
+                  disabled={busy}
+                >
                   Отмена
                 </Button>
                 <Button type="submit" disabled={busy || !form.title.trim()}>
-                  {busy ? "Сохраняем…" : isEdit ? "Сохранить" : "Создать"}
+                  {busy ? "..." : isEdit ? "Сохранить" : "Создать"}
                 </Button>
               </FormRow>
             </motion.form>
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>,
-    document.body,
+    </AnimatePresence>
   );
 }
 
@@ -251,10 +248,10 @@ function FormRow({ children, className = "" }) {
 function Segmented({ label, value, options, onChange, layoutKey = "seg" }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[13px] font-medium text-charcoal">
+      <label className="mb-1.5 block text-[13px] font-medium text-asana-ink">
         {label}
       </label>
-      <div className="inline-flex w-full rounded-md border border-asana-border bg-cream-deep p-0.5">
+      <div className="inline-flex rounded-md border border-asana-border bg-asana-side-bg p-0.5">
         {options.map((opt) => {
           const active = value === opt.v;
           return (
@@ -262,8 +259,8 @@ function Segmented({ label, value, options, onChange, layoutKey = "seg" }) {
               key={opt.v}
               type="button"
               onClick={() => onChange(opt.v)}
-              className={`relative flex-1 rounded px-2 py-1.5 text-[12px] font-medium transition-colors ${
-                active ? "text-charcoal" : "text-asana-muted hover:text-charcoal"
+              className={`relative px-2.5 py-1 text-[12px] font-medium rounded transition-colors ${
+                active ? "text-asana-ink" : "text-asana-muted hover:text-asana-ink"
               }`}
             >
               {active && (

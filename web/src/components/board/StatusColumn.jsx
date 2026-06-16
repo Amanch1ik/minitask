@@ -1,13 +1,11 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useDroppable } from "@dnd-kit/core";
-import { Plus } from "lucide-react";
 import TaskCard from "./TaskCard.jsx";
 import AnimatedCounter from "../ui/AnimatedCounter.jsx";
 
 const COLUMN_META = {
   todo: { label: "К выполнению", dot: "bg-asana-subtle" },
-  in_progress: { label: "В работе", dot: "bg-amber" },
-  done: { label: "Готово", dot: "bg-teal" },
+  in_progress: { label: "В работе", dot: "bg-chip-blue" },
+  done: { label: "Готово", dot: "bg-chip-green" },
 };
 
 const spring = { type: "spring", stiffness: 320, damping: 32 };
@@ -18,27 +16,30 @@ export default function StatusColumn({
   owner,
   index = 0,
   onEdit,
-  onToggleDone,
+  onMove,
   onDelete,
   onAdd,
 }) {
   const meta = COLUMN_META[status];
-  const { setNodeRef, isOver } = useDroppable({ id: status, data: { status } });
-
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...spring, delay: 0.06 * index }}
-      className="flex min-w-0 flex-col"
+      className="flex min-w-0 flex-col rounded-xl bg-asana-side-bg/60 p-3"
     >
-      <header className="mb-2.5 flex items-center justify-between px-1">
+      <header className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
-          <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-charcoal">
+          <motion.span
+            initial={{ scale: 0.5 }}
+            animate={{ scale: 1 }}
+            transition={{ ...spring, delay: 0.12 + 0.06 * index }}
+            className={`h-2 w-2 rounded-full ${meta.dot}`}
+          />
+          <h2 className="text-[13px] font-semibold uppercase tracking-wide text-asana-ink">
             {meta.label}
           </h2>
-          <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-md bg-cream-deep px-1.5 text-[11px] font-medium tabular text-asana-muted">
+          <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded bg-white px-1.5 text-[11px] tabular text-asana-muted ring-1 ring-asana-border">
             <AnimatedCounter value={tasks.length} />
           </span>
         </div>
@@ -48,51 +49,51 @@ export default function StatusColumn({
           whileHover={{ scale: 1.08, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           transition={spring}
-          className="grid h-7 w-7 place-items-center rounded-md text-asana-muted transition-colors hover:bg-cream-deep hover:text-charcoal focus:outline-none focus-visible:shadow-focus"
-          aria-label={`Добавить задачу в «${meta.label}»`}
+          className="grid h-6 w-6 place-items-center rounded-md text-asana-muted hover:bg-white hover:text-asana-ink"
+          aria-label="Добавить задачу"
         >
-          <Plus className="h-4 w-4" strokeWidth={2.2} />
+          +
         </motion.button>
       </header>
 
-      <motion.div
-        ref={setNodeRef}
-        animate={{
-          backgroundColor: isOver ? "rgba(20,184,166,0.08)" : "rgba(241,235,225,0.55)",
-          borderColor: isOver ? "rgba(20,184,166,0.55)" : "rgba(233,226,214,0.9)",
-        }}
-        transition={{ duration: 0.18 }}
-        className="flex min-h-[140px] flex-1 flex-col gap-2 rounded-xl border p-2 shadow-column backdrop-blur-sm"
-      >
+      <motion.ul layout className="flex flex-col gap-2">
         <AnimatePresence initial={false} mode="popLayout">
           {tasks.map((task) => (
-            <TaskCard
+            <motion.li
               key={task.id}
-              task={task}
-              owner={owner}
-              onEdit={onEdit}
-              onToggleDone={onToggleDone}
-              onDelete={onDelete}
-            />
+              layout
+              transition={spring}
+            >
+              <TaskCard
+                task={task}
+                owner={owner}
+                onEdit={onEdit}
+                onMove={onMove}
+                onDelete={onDelete}
+              />
+            </motion.li>
           ))}
         </AnimatePresence>
 
         {tasks.length === 0 && (
-          <motion.button
+          <motion.li
             layout
-            type="button"
-            onClick={onAdd}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            whileHover={{ y: -1 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={spring}
-            className="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-asana-border-strong/70 px-3 py-6 text-center text-[12.5px] text-asana-subtle transition-colors hover:border-teal/50 hover:text-teal focus:outline-none focus-visible:border-teal"
           >
-            <Plus className="h-4 w-4" strokeWidth={2} />
-            <span>{isOver ? "Отпустите здесь" : "Добавить задачу"}</span>
-          </motion.button>
+            <motion.button
+              type="button"
+              onClick={onAdd}
+              whileHover={{ y: -1, borderColor: "#f06a6a" }}
+              transition={spring}
+              className="block w-full rounded-md border border-dashed border-asana-border-strong/60 px-3 py-3 text-left text-[13px] text-asana-subtle hover:text-asana-coral"
+            >
+              + Добавить задачу
+            </motion.button>
+          </motion.li>
         )}
-      </motion.div>
+      </motion.ul>
     </motion.section>
   );
 }

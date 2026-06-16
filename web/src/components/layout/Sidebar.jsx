@@ -46,29 +46,27 @@ export default function Sidebar() {
                 show: { opacity: 1, x: 0, transition: spring },
               }}
             >
-              {item.active ? (
-                <span className="relative flex h-9 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] font-semibold text-charcoal">
+              <motion.button
+                type="button"
+                whileHover={{ x: 1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={spring}
+                className={`relative flex h-8 w-full items-center gap-2.5 rounded-md px-2.5 text-[13px] transition-colors ${
+                  item.active
+                    ? "text-asana-ink font-medium"
+                    : "text-asana-muted hover:bg-asana-side-hover hover:text-asana-ink"
+                }`}
+              >
+                {item.active && (
                   <motion.span
                     layoutId="nav-active"
-                    className="absolute inset-0 -z-0 rounded-md bg-teal/12"
+                    className="absolute inset-0 -z-0 rounded-md bg-asana-side-active"
                     transition={{ type: "spring", stiffness: 380, damping: 36 }}
                   />
-                  <span className="absolute left-0 top-1.5 bottom-1.5 z-10 w-[3px] rounded-full bg-teal" />
-                  <item.icon className="relative z-10 h-4 w-4 text-teal" />
-                  <span className="relative z-10">{item.label}</span>
-                </span>
-              ) : (
-                <span
-                  title="Скоро"
-                  className="flex h-9 w-full cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 text-[13px] text-asana-subtle/70"
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                  <span className="ml-auto rounded bg-cream-deep px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-asana-subtle">
-                    скоро
-                  </span>
-                </span>
-              )}
+                )}
+                <item.icon className="relative z-10 h-4 w-4" />
+                <span className="relative z-10">{item.label}</span>
+              </motion.button>
             </motion.li>
           ))}
         </ul>
