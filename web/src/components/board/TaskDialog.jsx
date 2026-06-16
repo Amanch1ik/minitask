@@ -91,7 +91,7 @@ export default function TaskDialog({
           animate={{ opacity: 1, pointerEvents: "auto" }}
           exit={{ opacity: 0, pointerEvents: "none" }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-asana-ink/40 px-4 backdrop-blur-[2px] sm:items-center"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-asana-ink/40 px-4 py-4 backdrop-blur-[2px] sm:py-6"
           onClick={onClose}
         >
           <motion.div
@@ -100,11 +100,11 @@ export default function TaskDialog({
             exit={{ y: 24, opacity: 0, scale: 0.97 }}
             transition={spring}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-[480px] rounded-t-xl bg-white shadow-lift sm:rounded-lg"
+            className="flex max-h-[92vh] w-full max-w-[480px] flex-col overflow-hidden rounded-xl bg-white shadow-lift"
             role="dialog"
             aria-modal="true"
           >
-            <header className="flex items-center justify-between border-b border-asana-border px-5 py-3.5">
+            <header className="flex shrink-0 items-center justify-between border-b border-asana-border px-5 py-3.5">
               <h2 className="text-[15px] font-semibold text-asana-ink">
                 {isEdit ? "Редактировать задачу" : "Новая задача"}
               </h2>
@@ -122,8 +122,9 @@ export default function TaskDialog({
             </header>
 
             <motion.form
+              id="task-form"
               onSubmit={submit}
-              className="space-y-4 p-5"
+              className="flex-1 space-y-4 overflow-y-auto p-5"
               initial="hidden"
               animate="show"
               variants={{
@@ -212,6 +213,9 @@ export default function TaskDialog({
                 />
               </FormRow>
 
+            </motion.form>
+
+            <div className="shrink-0 border-t border-asana-border px-5 py-4">
               <AnimatePresence>
                 {error && (
                   <motion.p
@@ -219,27 +223,21 @@ export default function TaskDialog({
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={spring}
-                    className="overflow-hidden rounded-md border border-asana-coral/40 bg-asana-coral-soft px-3 py-2 text-sm text-asana-coral-dark"
+                    className="mb-3 overflow-hidden rounded-md border border-asana-coral/40 bg-asana-coral-soft px-3 py-2 text-sm text-asana-coral-dark"
                   >
                     {error}
                   </motion.p>
                 )}
               </AnimatePresence>
-
-              <FormRow className="flex items-center justify-end gap-2 border-t border-asana-border pt-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={onClose}
-                  disabled={busy}
-                >
+              <div className="flex items-center justify-end gap-2">
+                <Button type="button" variant="ghost" onClick={onClose} disabled={busy}>
                   Отмена
                 </Button>
-                <Button type="submit" disabled={busy || !form.title.trim()}>
+                <Button type="submit" form="task-form" disabled={busy || !form.title.trim()}>
                   {busy ? "..." : isEdit ? "Сохранить" : "Создать"}
                 </Button>
-              </FormRow>
-            </motion.form>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       )}
