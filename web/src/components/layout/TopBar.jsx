@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Menu } from "lucide-react";
 import Avatar from "../ui/Avatar.jsx";
-import { LogoMark } from "../ui/Logo.jsx";
+import useDismiss from "../../hooks/useDismiss.js";
 
 const spring = { type: "spring", stiffness: 380, damping: 32 };
 
-export default function TopBar({ email, onLogout, view = "board", onView }) {
+export default function TopBar({ email, onLogout, view = "board", onView, onMenu, title = "Моя доска" }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const userRef = useRef(null);
+
+  useDismiss(userRef, menuOpen, () => setMenuOpen(false));
 
   return (
     <motion.header
@@ -15,12 +19,19 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
       transition={{ type: "spring", stiffness: 260, damping: 32 }}
       className="flex h-14 items-center justify-between border-b border-asana-border bg-white px-4 sm:px-6"
     >
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="lg:hidden">
-          <LogoMark size={24} />
-        </span>
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <motion.button
+          type="button"
+          onClick={onMenu}
+          whileTap={{ scale: 0.92 }}
+          transition={spring}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-asana-muted hover:bg-asana-side-bg hover:text-asana-ink lg:hidden"
+          aria-label="Открыть меню навигации"
+        >
+          <Menu className="h-5 w-5" strokeWidth={2} />
+        </motion.button>
         <p className="truncate text-[15px] font-semibold text-asana-ink">
-          Моя доска
+          {title}
         </p>
         <span className="hidden h-4 w-px bg-asana-border sm:block" />
         <ViewTabs value={view} onChange={onView} />
@@ -39,7 +50,7 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
           Поделиться
         </motion.button>
 
-        <div className="relative">
+        <div ref={userRef} className="relative">
           <motion.button
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
@@ -52,19 +63,14 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
           </motion.button>
           <AnimatePresence>
             {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setMenuOpen(false)}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: -6, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 460, damping: 36 }}
-                  style={{ transformOrigin: "top right" }}
-                  className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-lg border border-asana-border bg-white shadow-lift"
-                >
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 460, damping: 36 }}
+                style={{ transformOrigin: "top right" }}
+                className="absolute right-0 top-10 z-20 w-56 overflow-hidden rounded-lg border border-asana-border bg-white shadow-lift"
+              >
                   <div className="border-b border-asana-border px-3 py-3">
                     <p className="text-[11px] uppercase tracking-wider text-asana-subtle">
                       Вошёл как
@@ -82,8 +88,7 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
                   >
                     Выйти
                   </motion.button>
-                </motion.div>
-              </>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -94,27 +99,23 @@ export default function TopBar({ email, onLogout, view = "board", onView }) {
 
 function ViewTabs({ value, onChange }) {
   const tabs = [
-    { id: "list", label: "Список" },
     { id: "board", label: "Доска" },
+    { id: "today", label: "Сегодня" },
     { id: "calendar", label: "Календарь" },
   ];
   return (
     <div className="hidden items-center gap-0.5 p-0.5 sm:flex">
       {tabs.map((t) => {
         const active = t.id === value;
-        const disabled = t.id !== "board";
         return (
           <button
             key={t.id}
             type="button"
-            disabled={disabled}
             onClick={() => onChange?.(t.id)}
             className={`relative h-8 rounded-md px-3 text-[13px] transition-colors ${
               active
                 ? "text-asana-ink font-medium"
-                : disabled
-                  ? "text-asana-subtle/70 cursor-not-allowed"
-                  : "text-asana-muted hover:text-asana-ink"
+                : "text-asana-muted hover:text-asana-ink"
             }`}
           >
             {active && (

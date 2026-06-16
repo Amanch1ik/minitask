@@ -35,3 +35,9 @@ export function toDateInput(value) {
   if (!value) return "";
   return new Date(value).toISOString().slice(0, 10);
 }
+
+/** Uppercase only the first letter — Russian month/weekday names are lowercase. */
+export function capitalizeFirst(text) {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

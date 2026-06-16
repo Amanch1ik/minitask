@@ -52,6 +52,10 @@ export default {
         card: "0 1px 2px rgba(30, 31, 33, 0.04), 0 0 0 1px rgba(30, 31, 33, 0.04)",
         lift: "0 4px 12px -2px rgba(30, 31, 33, 0.08), 0 0 0 1px rgba(30, 31, 33, 0.05)",
         focus: "0 0 0 3px rgba(240, 106, 106, 0.18)",
+        // Lifted card while it's being dragged between lanes.
+        drag: "0 18px 40px -12px rgba(30, 31, 33, 0.28), 0 0 0 1px rgba(30, 31, 33, 0.06)",
+        // Context menu / popover surface.
+        pop: "0 8px 24px -6px rgba(30, 31, 33, 0.18), 0 0 0 1px rgba(30, 31, 33, 0.06)",
       },
     },
   },

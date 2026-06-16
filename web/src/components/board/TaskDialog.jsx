@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import Button from "../ui/Button.jsx";
 import Input from "../ui/Input.jsx";
+import { PROJECTS } from "../../lib/projects.js";
 import { toDateInput } from "../../lib/format.js";
 
 const EMPTY = {
@@ -10,6 +12,7 @@ const EMPTY = {
   priority: "medium",
   deadline: "",
   status: "todo",
+  project: "",
 };
 
 const spring = { type: "spring", stiffness: 360, damping: 32 };
@@ -18,6 +21,7 @@ export default function TaskDialog({
   open,
   initial,
   initialStatus = "todo",
+  initialProject = "",
   onClose,
   onSubmit,
 }) {
@@ -36,10 +40,11 @@ export default function TaskDialog({
             priority: initial.priority ?? "medium",
             deadline: toDateInput(initial.deadline),
             status: initial.status ?? "todo",
+            project: initialProject ?? "",
           }
-        : { ...EMPTY, status: initialStatus },
+        : { ...EMPTY, status: initialStatus, project: initialProject ?? "" },
     );
-  }, [open, initial, initialStatus]);
+  }, [open, initial, initialStatus, initialProject]);
 
   useEffect(() => {
     if (!open) return;
@@ -63,6 +68,7 @@ export default function TaskDialog({
         priority: form.priority,
         status: form.status,
         deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
+        project: form.project || null,
       };
       await onSubmit(payload);
     } catch (err) {
@@ -74,13 +80,16 @@ export default function TaskDialog({
 
   const isEdit = Boolean(initial && initial.id);
 
-  return (
+  // Portal to <body> — the dialog can't get trapped in a parent stacking
+  // context, and AnimatePresence is the sole owner of mount/unmount.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
+          key="task-dialog"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          animate={{ opacity: 1, pointerEvents: "auto" }}
+          exit={{ opacity: 0, pointerEvents: "none" }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="fixed inset-0 z-50 flex items-end justify-center bg-asana-ink/40 px-4 backdrop-blur-[2px] sm:items-center"
           onClick={onClose}
@@ -152,13 +161,13 @@ export default function TaskDialog({
               </FormRow>
 
               <FormRow>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Segmented
                     label="Приоритет"
                     value={form.priority}
                     options={[
                       { v: "low", label: "Низкий" },
-                      { v: "medium", label: "Сред" },
+                      { v: "medium", label: "Средний" },
                       { v: "high", label: "Высокий" },
                     ]}
                     onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
@@ -176,7 +185,7 @@ export default function TaskDialog({
                       type="date"
                       value={form.deadline}
                       onChange={set("deadline")}
-                      className="block h-10 w-full rounded-md border border-asana-border bg-white px-2.5 text-[14px] tabular text-asana-ink focus:border-asana-coral focus:outline-none focus:shadow-focus transition-shadow"
+                      className="block h-10 w-full rounded-md border border-asana-border bg-white px-3 text-[14px] tabular text-asana-ink focus:border-asana-coral focus:outline-none focus:shadow-focus transition-shadow"
                     />
                   </div>
                 </div>
@@ -193,6 +202,13 @@ export default function TaskDialog({
                   ]}
                   onChange={(v) => setForm((f) => ({ ...f, status: v }))}
                   layoutKey="status"
+                />
+              </FormRow>
+
+              <FormRow>
+                <ProjectPicker
+                  value={form.project}
+                  onChange={(v) => setForm((f) => ({ ...f, project: v }))}
                 />
               </FormRow>
 
@@ -227,7 +243,8 @@ export default function TaskDialog({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 
@@ -245,13 +262,46 @@ function FormRow({ children, className = "" }) {
   );
 }
 
+function ProjectPicker({ value, onChange }) {
+  const options = [{ id: "", label: "Без проекта", color: null }, ...PROJECTS];
+  return (
+    <div>
+      <label className="mb-1.5 block text-[13px] font-medium text-asana-ink">
+        Проект
+      </label>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const active = value === opt.id;
+          return (
+            <button
+              key={opt.id || "none"}
+              type="button"
+              onClick={() => onChange(opt.id)}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-[12px] font-medium transition-colors ${
+                active
+                  ? "border-asana-coral bg-asana-coral-soft text-asana-coral-dark"
+                  : "border-asana-border bg-white text-asana-muted hover:border-asana-border-strong hover:text-asana-ink"
+              }`}
+            >
+              {opt.color && (
+                <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ backgroundColor: opt.color }} />
+              )}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Segmented({ label, value, options, onChange, layoutKey = "seg" }) {
   return (
     <div>
       <label className="mb-1.5 block text-[13px] font-medium text-asana-ink">
         {label}
       </label>
-      <div className="inline-flex rounded-md border border-asana-border bg-asana-side-bg p-0.5">
+      <div className="flex h-10 w-full items-stretch rounded-md border border-asana-border bg-asana-side-bg p-1">
         {options.map((opt) => {
           const active = value === opt.v;
           return (
@@ -259,7 +309,7 @@ function Segmented({ label, value, options, onChange, layoutKey = "seg" }) {
               key={opt.v}
               type="button"
               onClick={() => onChange(opt.v)}
-              className={`relative px-2.5 py-1 text-[12px] font-medium rounded transition-colors ${
+              className={`relative flex flex-1 items-center justify-center rounded px-1 text-center text-[12px] font-medium transition-colors ${
                 active ? "text-asana-ink" : "text-asana-muted hover:text-asana-ink"
               }`}
             >
@@ -270,7 +320,7 @@ function Segmented({ label, value, options, onChange, layoutKey = "seg" }) {
                   transition={spring}
                 />
               )}
-              <span className="relative z-10">{opt.label}</span>
+              <span className="relative z-10 truncate">{opt.label}</span>
             </button>
           );
         })}
